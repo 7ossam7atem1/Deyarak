@@ -1,0 +1,66 @@
+const express = require('express');
+const propertyController = require('../controllers/propertyController');
+const authController = require('../controllers/authController');
+
+const router = express.Router();
+
+router.route('/property-stats').get(propertyController.calculateCriticalStats);
+router
+  .route('/related-suggestions/:id')
+  .get(propertyController.getRelatedSuggestions);
+
+router
+  .route('/properties-within/:distance/:center/:latlng/unit/:unit')
+  .get(propertyController.getPropertiesWithin);
+router
+  .route('/all-locations')
+  .get(authController.protect, propertyController.getPropertiesLocations);
+router
+  .route('/distances/:latlng/unit/:unit')
+  .get(propertyController.getDistances);
+
+// router.post(
+//   '/add-to-wishlist/:userId/:propertyId',
+//   authController.protect,
+//   propertyController.addToWishlist
+// );
+
+// router.post(
+//   '/remove-from-wishlist/:userId/:propertyId',
+//   authController.protect,
+//   propertyController.removeFromWishlist
+// );
+
+router
+  .route('/top-5-cheap')
+  .get(
+    propertyController.aliastingTopProperties,
+    propertyController.getAllProperties
+  );
+router
+  .route('/')
+  .get(propertyController.getAllProperties)
+  .post(
+    authController.protect,
+    authController.restrictTo('user', 'admin'),
+    propertyController.uploadPropertiesImages,
+    propertyController.resizePropertyImages,
+    propertyController.createProperty
+  );
+
+router
+  .route('/:id')
+  .get(propertyController.getProperty)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'user'),
+    propertyController.uploadPropertiesImages,
+    propertyController.resizePropertyImages,
+    propertyController.updateProperty
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin', 'user'),
+    propertyController.deleteProperty
+  );
+module.exports = router;

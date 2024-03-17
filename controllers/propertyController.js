@@ -1,0 +1,402 @@
+const multer = require('multer');
+const cloudinary = require('../utils/cloudinary');
+const sharp = require('sharp');
+
+const Property = require('../models/propertyModel');
+const catchAsyncronization = require('../utils/catchAsyncronization');
+const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiMaestro');
+
+const multerStorage = multer.memoryStorage();
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError('Not An Image! Please upload correct file formats.', 400),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadPropertiesImages = upload.fields([
+  { name: 'images', maxCount: 7 },
+]);
+
+
+exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
+  if (!req.files.images) return next();
+  if (req.files.images.length < 5) {
+    return next(new AppError('You must insert at least 5 images'), 400);
+  }
+
+  const imagesUploadPromises = req.files.images.map(async (file, i) => {
+    const imageBuffer = await sharp(file.buffer).resize(2000, 1333).toBuffer();
+
+    const imageUploadPromise = new Promise((resolve) => {
+      cloudinary.v2.uploader
+        .upload_stream(
+          {
+            resource_type: 'image',
+            folder: 'properties',
+            public_id: `property-${req.params.id}-${i + 1}`,
+            overwrite: true,
+            invalidate: true,
+          },
+          async (err, result) => {
+            if (err) {
+              return next(
+                new AppError('Error uploading the image to Cloudinary', 500)
+              );
+            }
+
+            if (!result || !result.secure_url || !result.public_id) {
+              return next(new AppError('Cloudinary upload failed', 500));
+            }
+
+            req.body.images.push(result.secure_url);
+
+            resolve(result.secure_url);
+          }
+        )
+        .end(imageBuffer);
+    });
+
+    return imageUploadPromise;
+  });
+
+  req.body.images = [];
+
+  await Promise.all(imagesUploadPromises);
+
+  next();
+});
+
+exports.aliastingTopProperties = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = 'price';
+  req.query.fields =
+    'price,size,numberOfRooms,location,images,numberOfBathrooms,address';
+  next();
+};
+
+exports.calculateCriticalStats = catchAsyncronization(
+  async (req, res, next) => {
+    const stats = await Property.aggregate([
+      {
+        $group: {
+          _id: { $toUpper: '$category' },
+          averagePrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+          averageSize: { $avg: '$size' },
+          minSize: { $min: '$size' },
+          maxSize: { $max: '$size' },
+          totalProperties: { $sum: 1 },
+          averageRooms: { $avg: '$numberOfRooms' },
+          averageBathrooms: { $avg: '$numberOfBathrooms' },
+          totalFurnished: {
+            $sum: { $cond: { if: '$furnished', then: 1, else: 0 } },
+          },
+          totalFinished: {
+            $sum: { $cond: { if: '$finished', then: 1, else: 0 } },
+          },
+          totalWithElevator: {
+            $sum: { $cond: { if: '$elevator', then: 1, else: 0 } },
+          },
+          averagePricePerRoom: {
+            $avg: { $divide: ['$price', '$numberOfRooms'] },
+          },
+          averagePricePerSquareMeter: {
+            $avg: { $divide: ['$price', '$size'] },
+          },
+          uniqueAddresses: { $addToSet: '$address' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          averagePrice: 1,
+          minPrice: 1,
+          maxPrice: 1,
+          averageSize: 1,
+          minSize: 1,
+          maxSize: 1,
+          totalProperties: 1,
+          averageRooms: 1,
+          averageBathrooms: 1,
+          totalFurnished: 1,
+          totalFinished: 1,
+          totalWithElevator: 1,
+          averagePricePerRoom: 1,
+          averagePricePerSquareMeter: 1,
+          uniqueAddresses: 1,
+        },
+      },
+      {
+        $sort: { averagePrice: 1 },
+      },
+    ]);
+
+    res.status(200).json({
+      status: 'Success',
+      results: stats.length,
+      data: {
+        stats: stats,
+      },
+    });
+  }
+);
+
+// exports.addToWishlist = catchAsyncronization(async (req, res, next) => {
+//   const propertyId = req.params.id;
+
+//   const property = await Property.findById(propertyId);
+//   if (!property) {
+//     return next(new AppError('Property with thad id not found!', 404));
+//   }
+
+//   res.status(200).json({
+//     status: 'Success',
+//     message: 'Property Added to wishlist',
+//   });
+// });
+
+exports.getAllProperties = catchAsyncronization(async (req, res, next) => {
+  console.log(req.query);
+  //now we build the query
+  //1) Filtering
+  const features = new APIFeatures(Property.find(), req.query)
+    .filtering()
+    .sorting()
+    .limitingFields()
+    .pagination()
+    .searching();
+  const allProperties = await features.query;
+
+  res.status(200).json({
+    status: 'Success',
+    results: allProperties.length,
+    data: {
+      data: allProperties,
+    },
+  });
+});
+
+exports.getProperty = catchAsyncronization(async (req, res, next) => {
+  const propertyId = req.params.id;
+  const property = await Property.findById(propertyId);
+  if (!property) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'Success',
+    data: {
+      data: property,
+    },
+  });
+});
+
+exports.createProperty = catchAsyncronization(async (req, res, next) => {
+  req.body.owner = req.user.id;
+  const newProperty = await Property.create(req.body);
+  res.status(200).json({
+    status: 'Success',
+    message: 'Property Created successfully!',
+    data: {
+      data: newProperty,
+    },
+  });
+});
+
+exports.updateProperty = catchAsyncronization(async (req, res, next) => {
+  const property = await Property.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!property) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+  res.status(200).json({
+    status: 'Success',
+    message: 'Property updated successfully!',
+    data: {
+      data: property,
+    },
+  });
+});
+
+exports.deleteProperty = catchAsyncronization(async (req, res, next) => {
+  const property = await Property.findByIdAndDelete(req.params.id);
+  if (!property) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+  res.status(204).json({
+    status: 'success',
+  });
+});
+
+exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
+  const propertyId = req.params.id;
+  const currentProperty = await Property.findById(propertyId);
+  if (!currentProperty) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+  const criteria = {
+    $and: [
+      {
+        _id: { $ne: propertyId },
+        // category: currentProperty.category,
+      },
+      {
+        $or: [
+          {
+            size: {
+              $gte: currentProperty.size - 100,
+              $lte: currentProperty.size + 100,
+            },
+          },
+          {
+            numberOfrooms: {
+              $gte: currentProperty.numberOfRooms - 2,
+              $lte: currentProperty.numberOfRooms + 2,
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const relatedProperties = await Property.find(criteria)
+    .select(
+      'price size numberOfRooms location images numberOfBathrooms address category'
+    )
+    .limit(8);
+  res.status(200).json({
+    status: 'success',
+    results: relatedProperties.length,
+    data: {
+      data: relatedProperties,
+    },
+  });
+});
+
+// exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
+//   const propertyId = req.params.id;
+//   const currentProperty = await Property.findById(propertyId);
+//   if (!currentProperty) {
+//     return next(new AppError('Property with that id not found', 404));
+//   }
+//   const criteria = {
+//     _id: { $ne: propertyId },
+//     category: currentProperty.category,
+//     size: { $gte: currentProperty.size - 100, $lte: currentProperty.size + 100 },
+//     numberOfrooms: {
+//       $gte: currentProperty.numberOfRooms + 2,
+//       $lte: currentProperty.numberOfRooms - 2,
+//     },
+//   };
+//   const relatedProperties = await Property.find(criteria)
+//     .select(
+//       'price size numberOfRooms location images numberOfBathrooms address'
+//     )
+//     .limit(5);
+//   res.status(200).json({
+//     status: 'success',
+//     results: relatedProperties.length,
+//     data: {
+//       data: relatedProperties,
+//     },
+//   });
+// });
+
+exports.getPropertiesWithin = catchAsyncronization(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  console.log(radius);
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        'Please Provide  latitude and longitude in correct format lat,lng.',
+        400
+      )
+    );
+  }
+
+  console.log(distance, lat, lng, unit);
+  const properties = await Property.find({
+    locations: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+  res.status(200).json({
+    status: 'success',
+    result: properties.length,
+    data: {
+      data: properties,
+    },
+  });
+});
+
+exports.getDistances = catchAsyncronization(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        'Please Provide latitude and longitude in correct format lat,lng.',
+        400
+      )
+    );
+  }
+
+  const distances = await Property.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'point',
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: 'distance',
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+  res.status(200).json({
+    status: 'success',
+    results: distances.length,
+    data: {
+      data: distances,
+    },
+  });
+});
+
+exports.getPropertiesLocations = catchAsyncronization(
+  async (req, res, next) => {
+    const properties = await Property.find({
+      locations: { $exists: true, $ne: [] },
+    });
+
+    const locations = properties.map((property) => property.locations);
+
+    res.status(200).json({
+      status: 'success',
+      result: locations.length,
+      data: {
+        locations: locations,
+      },
+    });
+  }
+);
