@@ -3,20 +3,6 @@ const validator = require('validator');
 const propertySchema = new mongoose.Schema(
   {
     images: [String],
-    // images: [
-    //   {
-    //     url: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //     public_id: {
-    //       type: String,
-    //       default: null,
-    //     },
-    //     // You can add additional fields if needed, such as filename, public_id, etc.
-    //   },
-    // ],
-
     price: {
       type: Number,
       required: [true, 'A property must have a price '],

@@ -19,18 +19,6 @@ router
   .route('/distances/:latlng/unit/:unit')
   .get(propertyController.getDistances);
 
-// router.post(
-//   '/add-to-wishlist/:userId/:propertyId',
-//   authController.protect,
-//   propertyController.addToWishlist
-// );
-
-// router.post(
-//   '/remove-from-wishlist/:userId/:propertyId',
-//   authController.protect,
-//   propertyController.removeFromWishlist
-// );
-
 router
   .route('/top-5-cheap')
   .get(

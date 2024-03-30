@@ -1,21 +1,18 @@
 const multer = require('multer');
 const cloudinary = require('../utils/cloudinary');
 const sharp = require('sharp');
-
 const Property = require('../models/propertyModel');
 const catchAsyncronization = require('../utils/catchAsyncronization');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiMaestro');
+const factory = require('./factoryHandler');
 
 const multerStorage = multer.memoryStorage();
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
-    cb(
-      new AppError('Not An Image! Please upload correct file formats.', 400),
-      false
-    );
+    cb(new Error('Not An Image! Please upload correct file formats.'), false);
   }
 };
 
@@ -28,7 +25,54 @@ exports.uploadPropertiesImages = upload.fields([
   { name: 'images', maxCount: 7 },
 ]);
 
+//Without Resizing
+// exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
+//   if (!req.files.images) return next();
+//   if (req.files.images.length < 5) {
+//     return next(new AppError('You must insert at least 5 images'), 400);
+//   }
 
+//   const imagesUploadPromises = req.files.images.map(async (file, i) => {
+//     const imageUploadPromise = new Promise((resolve) => {
+//       cloudinary.v2.uploader
+//         .upload_stream(
+//           {
+//             resource_type: 'image',
+//             folder: 'properties',
+//             public_id: `property-${req.params.id}-${i + 1}`,
+//             overwrite: true,
+//             invalidate: true,
+//           },
+//           async (err, result) => {
+//             if (err) {
+//               return next(
+//                 new AppError('Error uploading the image to Cloudinary', 500)
+//               );
+//             }
+
+//             if (!result || !result.secure_url || !result.public_id) {
+//               return next(new AppError('Cloudinary upload failed', 500));
+//             }
+
+//             req.body.images.push(result.secure_url);
+
+//             resolve(result.secure_url);
+//           }
+//         )
+//         .end(file.buffer);
+//     });
+
+//     return imageUploadPromise;
+//   });
+
+//   req.body.images = [];
+
+//   await Promise.all(imagesUploadPromises);
+
+//   next();
+// });
+
+// With Resizing
 exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   if (!req.files.images) return next();
   if (req.files.images.length < 5) {
@@ -36,7 +80,11 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   }
 
   const imagesUploadPromises = req.files.images.map(async (file, i) => {
-    const imageBuffer = await sharp(file.buffer).resize(2000, 1333).toBuffer();
+    const imageBuffer = await sharp(file.buffer)
+      .resize({
+        fit: 'cover',
+      })
+      .toBuffer();
 
     const imageUploadPromise = new Promise((resolve) => {
       cloudinary.v2.uploader
@@ -168,6 +216,7 @@ exports.calculateCriticalStats = catchAsyncronization(
 //   });
 // });
 
+// exports.getAllProperties = factory.getAll(Property);
 exports.getAllProperties = catchAsyncronization(async (req, res, next) => {
   console.log(req.query);
   //now we build the query
@@ -210,9 +259,6 @@ exports.createProperty = catchAsyncronization(async (req, res, next) => {
   res.status(200).json({
     status: 'Success',
     message: 'Property Created successfully!',
-    data: {
-      data: newProperty,
-    },
   });
 });
 
