@@ -1,10 +1,11 @@
+const mongoose = require('mongoose');
+const { Types } = require('mongoose');
 const multer = require('multer');
 const cloudinary = require('../utils/cloudinary');
 const sharp = require('sharp');
 const Property = require('../models/propertyModel');
 const catchAsyncronization = require('../utils/catchAsyncronization');
 const AppError = require('../utils/appError');
-const APIFeatures = require('../utils/apiMaestro');
 const factory = require('./factoryHandler');
 
 const multerStorage = multer.memoryStorage();
@@ -25,54 +26,6 @@ exports.uploadPropertiesImages = upload.fields([
   { name: 'images', maxCount: 7 },
 ]);
 
-//Without Resizing
-// exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
-//   if (!req.files.images) return next();
-//   if (req.files.images.length < 5) {
-//     return next(new AppError('You must insert at least 5 images'), 400);
-//   }
-
-//   const imagesUploadPromises = req.files.images.map(async (file, i) => {
-//     const imageUploadPromise = new Promise((resolve) => {
-//       cloudinary.v2.uploader
-//         .upload_stream(
-//           {
-//             resource_type: 'image',
-//             folder: 'properties',
-//             public_id: `property-${req.params.id}-${i + 1}`,
-//             overwrite: true,
-//             invalidate: true,
-//           },
-//           async (err, result) => {
-//             if (err) {
-//               return next(
-//                 new AppError('Error uploading the image to Cloudinary', 500)
-//               );
-//             }
-
-//             if (!result || !result.secure_url || !result.public_id) {
-//               return next(new AppError('Cloudinary upload failed', 500));
-//             }
-
-//             req.body.images.push(result.secure_url);
-
-//             resolve(result.secure_url);
-//           }
-//         )
-//         .end(file.buffer);
-//     });
-
-//     return imageUploadPromise;
-//   });
-
-//   req.body.images = [];
-
-//   await Promise.all(imagesUploadPromises);
-
-//   next();
-// });
-
-// With Resizing
 exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   if (!req.files.images) return next();
   if (req.files.images.length < 5) {
@@ -92,7 +45,6 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
           {
             resource_type: 'image',
             folder: 'properties',
-            public_id: `property-${req.params.id}-${i + 1}`,
             overwrite: true,
             invalidate: true,
           },
@@ -107,9 +59,13 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
               return next(new AppError('Cloudinary upload failed', 500));
             }
 
-            req.body.images.push(result.secure_url);
+            const imageObj = {
+              url: result.secure_url,
+              public_id: result.public_id,
+            };
+            req.body.images.push(imageObj);
 
-            resolve(result.secure_url);
+            resolve(imageObj);
           }
         )
         .end(imageBuffer);
@@ -123,6 +79,60 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   await Promise.all(imagesUploadPromises);
 
   next();
+});
+
+exports.updateProperty = catchAsyncronization(async (req, res, next) => {
+  const property = await Property.findById(req.params.id);
+
+  if (!property) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+
+  const oldPublicIds = property.images.map((image) => image.public_id);
+
+  const newPublicIds = req.body.images.map((image) => image.public_id);
+
+  const publicIdsToDelete = oldPublicIds.filter(
+    (oldPublicId) => !newPublicIds.includes(oldPublicId)
+  );
+
+  const deletePromises = publicIdsToDelete.map(async (public_id) => {
+    await cloudinary.v2.uploader.destroy(public_id);
+  });
+
+  await Promise.all(deletePromises);
+
+  property.images = req.body.images;
+
+  await property.save();
+
+  res.status(200).json({
+    status: 'Success',
+    message: 'Property updated successfully!',
+    data: {
+      data: property,
+    },
+  });
+});
+
+exports.deleteProperty = catchAsyncronization(async (req, res, next) => {
+  const property = await Property.findById(req.params.id).populate('images');
+
+  if (!property) {
+    return next(new AppError('Property with that id not found', 404));
+  }
+
+  const deletePromises = property.images.map(async (image) => {
+    await cloudinary.v2.uploader.destroy(image.public_id);
+  });
+
+  await Promise.all(deletePromises);
+
+  await property.deleteOne();
+
+  res.status(204).json({
+    status: 'success',
+  });
 });
 
 exports.aliastingTopProperties = async (req, res, next) => {
@@ -202,104 +212,75 @@ exports.calculateCriticalStats = catchAsyncronization(
   }
 );
 
-// exports.addToWishlist = catchAsyncronization(async (req, res, next) => {
-//   const propertyId = req.params.id;
+exports.getAllProperties = factory.getAll(Property);
+// exports.getAllProperties = catchAsyncronization(async (req, res, next) => {
+//   console.log(req.query);
+//   //now we build the query
+//   //1) Filtering
+//   const features = new APIFeatures(Property.find(), req.query)
+//     .filtering()
+//     .sorting()
+//     .limitingFields()
+//     .pagination()
+//     .searching();
+//   const allProperties = await features.query;
 
+//   res.status(200).json({
+//     status: 'Success',
+//     results: allProperties.length,
+//     data: {
+//       data: allProperties,
+//     },
+//   });
+// });
+
+exports.getProperty = factory.getOne(Property);
+// exports.getProperty = catchAsyncronization(async (req, res, next) => {
+//   const propertyId = req.params.id;
 //   const property = await Property.findById(propertyId);
 //   if (!property) {
-//     return next(new AppError('Property with thad id not found!', 404));
+//     return next(new AppError('Property with that id not found', 404));
 //   }
 
 //   res.status(200).json({
 //     status: 'Success',
-//     message: 'Property Added to wishlist',
+//     data: {
+//       data: property,
+//     },
 //   });
 // });
-
-// exports.getAllProperties = factory.getAll(Property);
-exports.getAllProperties = catchAsyncronization(async (req, res, next) => {
-  console.log(req.query);
-  //now we build the query
-  //1) Filtering
-  const features = new APIFeatures(Property.find(), req.query)
-    .filtering()
-    .sorting()
-    .limitingFields()
-    .pagination()
-    .searching();
-  const allProperties = await features.query;
-
-  res.status(200).json({
-    status: 'Success',
-    results: allProperties.length,
-    data: {
-      data: allProperties,
-    },
-  });
-});
-
-exports.getProperty = catchAsyncronization(async (req, res, next) => {
-  const propertyId = req.params.id;
-  const property = await Property.findById(propertyId);
-  if (!property) {
-    return next(new AppError('Property with that id not found', 404));
-  }
-
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      data: property,
-    },
-  });
-});
-
-exports.createProperty = catchAsyncronization(async (req, res, next) => {
-  req.body.owner = req.user.id;
-  const newProperty = await Property.create(req.body);
-  res.status(200).json({
-    status: 'Success',
-    message: 'Property Created successfully!',
-  });
-});
-
-exports.updateProperty = catchAsyncronization(async (req, res, next) => {
-  const property = await Property.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-  if (!property) {
-    return next(new AppError('Property with that id not found', 404));
-  }
-  res.status(200).json({
-    status: 'Success',
-    message: 'Property updated successfully!',
-    data: {
-      data: property,
-    },
-  });
-});
-
-exports.deleteProperty = catchAsyncronization(async (req, res, next) => {
-  const property = await Property.findByIdAndDelete(req.params.id);
-  if (!property) {
-    return next(new AppError('Property with that id not found', 404));
-  }
-  res.status(204).json({
-    status: 'success',
-  });
-});
-
+exports.createProperty = factory.createOne(Property);
+// exports.createProperty = catchAsyncronization(async (req, res, next) => {
+//   req.body.owner = req.user.id;
+//   const newProperty = await Property.create(req.body);
+//   res.status(200).json({
+//     status: 'Success',
+//     message: 'Property Created successfully!',
+//   });
+// });
 exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
   const propertyId = req.params.id;
   const currentProperty = await Property.findById(propertyId);
   if (!currentProperty) {
     return next(new AppError('Property with that id not found', 404));
   }
-  const criteria = {
+  
+  const locationCriteria = {
+    "locations.coordinates": {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: currentProperty.locations.coordinates
+        },
+        $maxDistance: 10000 // Maximum distance in meters (adjust as needed)
+      }
+    }
+  };
+
+  const sizeAndRoomCriteria = {
     $and: [
       {
         _id: { $ne: propertyId },
-        // category: currentProperty.category,
       },
       {
         $or: [
@@ -310,7 +291,7 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
             },
           },
           {
-            numberOfrooms: {
+            numberOfRooms: {
               $gte: currentProperty.numberOfRooms - 2,
               $lte: currentProperty.numberOfRooms + 2,
             },
@@ -319,9 +300,17 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
       },
     ],
   };
+
+  const criteria = {
+    $and: [
+      locationCriteria,
+      sizeAndRoomCriteria
+    ]
+  };
+
   const relatedProperties = await Property.find(criteria)
     .select(
-      'price size numberOfRooms location images numberOfBathrooms address category'
+      'price size numberOfRooms locations images numberOfBathrooms address category'
     )
     .limit(8);
   res.status(200).json({
@@ -333,6 +322,8 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
   });
 });
 
+
+
 // exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
 //   const propertyId = req.params.id;
 //   const currentProperty = await Property.findById(propertyId);
@@ -340,19 +331,34 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
 //     return next(new AppError('Property with that id not found', 404));
 //   }
 //   const criteria = {
-//     _id: { $ne: propertyId },
-//     category: currentProperty.category,
-//     size: { $gte: currentProperty.size - 100, $lte: currentProperty.size + 100 },
-//     numberOfrooms: {
-//       $gte: currentProperty.numberOfRooms + 2,
-//       $lte: currentProperty.numberOfRooms - 2,
-//     },
+//     $and: [
+//       {
+//         _id: { $ne: propertyId },
+//         // category: currentProperty.category,
+//       },
+//       {
+//         $or: [
+//           {
+//             size: {
+//               $gte: currentProperty.size - 100,
+//               $lte: currentProperty.size + 100,
+//             },
+//           },
+//           {
+//             numberOfRooms: {
+//               $gte: currentProperty.numberOfRooms - 2,
+//               $lte: currentProperty.numberOfRooms + 2,
+//             },
+//           },
+//         ],
+//       },
+//     ],
 //   };
 //   const relatedProperties = await Property.find(criteria)
 //     .select(
-//       'price size numberOfRooms location images numberOfBathrooms address'
+//       'price size numberOfRooms location images numberOfBathrooms address category'
 //     )
-//     .limit(5);
+//     .limit(8);
 //   res.status(200).json({
 //     status: 'success',
 //     results: relatedProperties.length,

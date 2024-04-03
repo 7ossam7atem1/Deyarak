@@ -10,6 +10,7 @@ exports.deleteOne = (Model) =>
     }
     res.status(204).json({
       status: 'success',
+      message: 'deleted Successfully',
     });
   });
 
@@ -33,7 +34,10 @@ exports.createOne = (Model) =>
     const newDocument = await Model.create(req.body);
     res.status(201).json({
       status: 'success',
-      data: newDocument,
+      message: 'Created successfully',
+      data:{
+        data: newDocument
+      }
     });
   });
 

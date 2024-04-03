@@ -2,7 +2,13 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const propertySchema = new mongoose.Schema(
   {
-    images: [String],
+    // images: [String],
+    images: [
+      {
+        url: String,
+        public_id: String,
+      },
+    ],
     price: {
       type: Number,
       required: [true, 'A property must have a price '],
@@ -25,13 +31,11 @@ const propertySchema = new mongoose.Schema(
       required: true,
     },
     locations: {
-      //GeoJSON
       type: {
         type: String,
         default: 'Point',
         enum: ['Point'],
       },
-
       coordinates: [Number],
       address: String,
       description: String,
@@ -74,6 +78,7 @@ const propertySchema = new mongoose.Schema(
 
 propertySchema.index({ address: 'text' });
 propertySchema.index({ locations: '2dsphere' });
+propertySchema.index({ 'locations.coordinates': '2dsphere' });
 //virtual properties
 propertySchema.virtual('pricePerSquareMeter').get(function () {
   return this.price / this.size;

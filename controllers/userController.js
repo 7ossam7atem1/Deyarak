@@ -126,6 +126,7 @@ exports.deleteMe = catchAsyncronization(async (req, res, next) => {
     data: null,
   });
 });
+
 exports.addToWishlist = catchAsyncronization(async (req, res, next) => {
   const userId = req.params.userId;
   const propertyId = req.params.propertyId;
@@ -190,11 +191,13 @@ exports.getWishlist = catchAsyncronization(async (req, res, next) => {
     wishlist: user.wishlist,
   });
 });
+
 exports.getAllUsers = factory.getAll(User);
+
 exports.getUser = factory.getOne(User, { path: 'reviews' });
 exports.createUser = (req, res) => {
   res.status(500).json({
-    status: 'faield',
+    status: 'failed',
     message: 'This Route is not defined! / Please use /signup instead.',
   });
 };
