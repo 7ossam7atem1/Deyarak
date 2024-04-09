@@ -5,6 +5,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.route('/property-stats').get(propertyController.calculateCriticalStats);
+
 router
   .route('/related-suggestions/:id')
   .get(propertyController.getRelatedSuggestions);
@@ -12,6 +13,7 @@ router
 router
   .route('/properties-within/:distance/:center/:latlng/unit/:unit')
   .get(propertyController.getPropertiesWithin);
+
 router
   .route('/all-locations')
   .get(authController.protect, propertyController.getPropertiesLocations);

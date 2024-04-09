@@ -42,7 +42,7 @@ const propertySchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
       select: false,
     },
@@ -77,12 +77,12 @@ const propertySchema = new mongoose.Schema(
 );
 
 propertySchema.index({ address: 'text' });
-propertySchema.index({ locations: '2dsphere' });
+// propertySchema.index({ locations: '2dsphere' });
 propertySchema.index({ 'locations.coordinates': '2dsphere' });
 //virtual properties
-propertySchema.virtual('pricePerSquareMeter').get(function () {
-  return this.price / this.size;
-});
+// propertySchema.virtual('pricePerSquareMeter').get(function () {
+//   return this.price / this.size;
+// });
 
 propertySchema.virtual('totalRooms').get(function () {
   return this.numberOfRooms + this.numberOfBathrooms;

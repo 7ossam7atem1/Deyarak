@@ -1,0 +1,1406 @@
+{
+  "tags": [
+    {
+      "name": "Users",
+      "description": "User Authentication guide endpoints"
+    },
+    {
+      "name": "Properties",
+      "description": "Property guide endpoints"
+    },
+    {
+      "name": "Wishlist",
+      "description": "User Wishlist guide endpoints"
+    },
+    {
+      "name": "User Own data",
+      "description": "User Updating his own data from the application"
+    },
+    {
+      "name": "Admin dashboard",
+      "description": "Admin Controlling the users by CRUDS "
+    },
+    {
+      "name": "Reviews",
+      "description": ""
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "tags": "Users",
+    "/api/v1/users/signup": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "passwordConfirm": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "password",
+                  "passwordConfirm",
+                  "phone",
+                  "role"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully registered"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/login": {
+      "post": {
+        "summary": "Log in a user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully logged in"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Invalid email or password."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/forgotPassword": {
+      "post": {
+        "summary": "Request password reset",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": ["email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset request sent successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid email parameter."
+          },
+          "404": {
+            "description": "Not found. User with the provided email does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/resetPassword/{token}": {
+      "patch": {
+        "summary": "Reset user password",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Reset token received via email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "passwordConfirm": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": ["password", "passwordConfirm"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "404": {
+            "description": "Not found. Invalid or expired reset token."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/updateMyPassword/{id}": {
+      "patch": {
+        "tags": ["Users"],
+        "summary": "Update user password",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currentPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "newPasswordConfirm": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "currentPassword",
+                  "newPassword",
+                  "newPasswordConfirm"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Invalid or expired token."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/property-stats": {
+      "get": {
+        "summary": "Calculate critical statistics for properties",
+        "tags": ["Properties"],
+        "responses": {
+          "200": {
+            "description": "Successfully calculated critical statistics"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/related-suggestions/{id}": {
+      "get": {
+        "summary": "Get related suggestions for a property",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the property",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved related suggestions"
+          },
+          "404": {
+            "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
+    "/api/v1/properties/properties-within/{distance}/{center}/{latlng}/unit/{unit}": {
+      "get": {
+        "summary": "Get properties within a specified distance from a center point",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "distance",
+            "in": "path",
+            "description": "Distance from the center point (in the specified unit)",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "center",
+            "in": "path",
+            "description": "Coordinates of the center point",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "latlng",
+            "in": "path",
+            "description": "Latitude and longitude of the center point",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unit",
+            "in": "path",
+            "description": "Unit of distance measurement (e.g., 'km', 'mi')",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved properties within the specified distance"
+          },
+          "400": {
+            "description": "Bad request. Invalid parameters provided."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/all-locations": {
+      "get": {
+        "summary": "Get all locations of properties",
+        "tags": ["Properties"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved locations of properties"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/distances/{latlng}/unit/{unit}": {
+      "get": {
+        "summary": "Get distances to properties from a specified point",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "latlng",
+            "in": "path",
+            "description": "Latitude and longitude of the specified point",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unit",
+            "in": "path",
+            "description": "Unit of distance measurement (e.g., 'km', 'mi')",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved distances to properties"
+          },
+          "400": {
+            "description": "Bad request. Invalid parameters provided."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/top-5-cheap": {
+      "get": {
+        "summary": "Get top 5 cheapest properties",
+        "tags": ["Properties"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved top 5 cheapest properties"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties": {
+      "get": {
+        "summary": "Get all properties",
+        "tags": ["Properties"],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all properties"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new property",
+        "tags": ["Properties"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": { "type": "string" },
+                        "public_id": { "type": "string" }
+                      }
+                    }
+                  },
+                  "price": { "type": "number" },
+                  "size": { "type": "number" },
+                  "numberOfRooms": { "type": "number" },
+                  "numberOfBathrooms": { "type": "number" },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "apartment",
+                      "furnished apartment",
+                      "family house",
+                      "villa"
+                    ]
+                  },
+                  "locations": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["Point"],
+                        "default": "Point"
+                      },
+                      "coordinates": {
+                        "type": "array",
+                        "items": { "type": "number" }
+                      },
+                      "address": { "type": "string" },
+                      "description": { "type": "string" }
+                    }
+                  },
+                  "address": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "furnished": { "type": "boolean" },
+                  "finished": { "type": "boolean" },
+                  "elevator": { "type": "boolean" },
+                  "amenities": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "description": { "type": "string" },
+                  "createdAt": { "type": "string", "format": "date-time" },
+                  "owner": { "type": "string", "format": "uuid" }
+                },
+                "required": [
+                  "price",
+                  "size",
+                  "numberOfRooms",
+                  "numberOfBathrooms",
+                  "category",
+                  "locations",
+                  "address",
+                  "slug",
+                  "owner"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Property created successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{id}": {
+      "get": {
+        "summary": "Get a property by ID",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Property ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the property"
+          },
+          "404": {
+            "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a property by ID",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Property ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": { "type": "string" },
+                        "public_id": { "type": "string" }
+                      }
+                    }
+                  },
+                  "price": { "type": "number" },
+                  "size": { "type": "number" },
+                  "numberOfRooms": { "type": "number" },
+                  "numberOfBathrooms": { "type": "number" },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "apartment",
+                      "furnished apartment",
+                      "family house",
+                      "villa"
+                    ]
+                  },
+                  "locations": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["Point"],
+                        "default": "Point"
+                      },
+                      "coordinates": {
+                        "type": "array",
+                        "items": { "type": "number" }
+                      },
+                      "address": { "type": "string" },
+                      "description": { "type": "string" }
+                    }
+                  },
+                  "address": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "furnished": { "type": "boolean" },
+                  "finished": { "type": "boolean" },
+                  "elevator": { "type": "boolean" },
+                  "amenities": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "description": { "type": "string" },
+                  "createdAt": { "type": "string", "format": "date-time" },
+                  "owner": { "type": "string", "format": "uuid" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Property updated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a property by ID",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Property ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Property deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/add-to-wishlist/{userId}/{propertyId}": {
+      "post": {
+        "summary": "Add property to user's wishlist",
+        "tags": ["Wishlist"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Property ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Property added to user's wishlist successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User or property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/remove-from-wishlist/{userId}/{propertyId}": {
+      "post": {
+        "summary": "Remove property from user's wishlist",
+        "tags": ["Wishlist"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Property ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Property removed from user's wishlist successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User or property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/wishlist/{userId}": {
+      "get": {
+        "summary": "Get user's wishlist",
+        "tags": ["Wishlist"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved user's wishlist"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist or wishlist is empty."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/updateMe": {
+      "patch": {
+        "summary": "Update user profile",
+        "tags": ["User Own data"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 8,
+                    "maxLength": 40
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["name", "email", "phone"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User profile updated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/deleteMe": {
+      "delete": {
+        "summary": "Deactivate user account",
+        "tags": ["User Own data"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User account deactivated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "summary": "Get current user's profile",
+        "tags": ["User Own data"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User not found."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "summary": "Get all users",
+        "tags": ["Admin dashboard"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "tags": ["Admin dashboard"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "summary": "Get a user by ID",
+        "tags": ["Admin dashboard"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a user by ID",
+        "tags": ["Admin dashboard"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a user by ID",
+        "tags": ["Admin dashboard"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. User with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/reviews": {
+      "get": {
+        "summary": "Get all reviews",
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new review",
+        "tags": ["Reviews"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "review": {
+                    "type": "string"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "reviewedUser": {
+                    "type": "string",
+                    "description": "ID of the user being reviewed"
+                  },
+                  "reviewer": {
+                    "type": "string",
+                    "description": "ID of the reviewer"
+                  }
+                },
+                "required": ["review", "rating", "reviewedUser", "reviewer"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/reviews/{id}": {
+      "get": {
+        "summary": "Get a review by ID",
+        "tags": ["Reviews"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the review to get",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Review with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a review by ID",
+        "tags": ["Reviews"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the review to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "review": {
+                    "type": "string"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5
+                  }
+                },
+                "required": ["review", "rating"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Review updated successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Review with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a review by ID",
+        "tags": ["Reviews"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the review to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Review deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Review with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  }
+}

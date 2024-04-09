@@ -19,6 +19,8 @@ router.patch(
   userController.resizeUserProfilePhoto,
   userController.updateMe
 );
+
+
 router.route('/deleteMe').delete(userController.deleteMe);
 router.get('/me', userController.getMe, userController.getUser);
 

@@ -6,12 +6,13 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-
 const propertyRouter = require('./routes/propertyRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const errorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./utils/swagger');
 const app = express();
 
 app.use(express.json());
@@ -46,6 +47,7 @@ app.use(hpp());
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));

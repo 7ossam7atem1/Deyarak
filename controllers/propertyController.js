@@ -264,17 +264,17 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
   if (!currentProperty) {
     return next(new AppError('Property with that id not found', 404));
   }
-  
+
   const locationCriteria = {
-    "locations.coordinates": {
+    'locations.coordinates': {
       $near: {
         $geometry: {
-          type: "Point",
-          coordinates: currentProperty.locations.coordinates
+          type: 'Point',
+          coordinates: currentProperty.locations.coordinates,
         },
-        $maxDistance: 10000 // Maximum distance in meters (adjust as needed)
-      }
-    }
+        $maxDistance: 10000, // Maximum distance in meters (adjust as needed)
+      },
+    },
   };
 
   const sizeAndRoomCriteria = {
@@ -302,10 +302,7 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
   };
 
   const criteria = {
-    $and: [
-      locationCriteria,
-      sizeAndRoomCriteria
-    ]
+    $and: [locationCriteria, sizeAndRoomCriteria],
   };
 
   const relatedProperties = await Property.find(criteria)
@@ -321,8 +318,6 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
-
-
 
 // exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
 //   const propertyId = req.params.id;

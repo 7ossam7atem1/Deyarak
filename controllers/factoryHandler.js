@@ -31,6 +31,7 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsyncronization(async (req, res, next) => {
+    req.body.owner = req.user.id;
     const newDocument = await Model.create(req.body);
     res.status(201).json({
       status: 'success',
