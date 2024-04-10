@@ -1401,6 +1401,45 @@
           }
         }
       }
+    },
+    "/api/v1/properties/view-on-map/{id}": {
+      "get": {
+        "summary": "View property location on map",
+        "tags": ["Properties"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the property",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Property location retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "403": {
+            "description": "Forbidden. User does not have permission to perform this action."
+          },
+          "404": {
+            "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   }
 }

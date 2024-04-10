@@ -46,6 +46,10 @@ const propertySchema = new mongoose.Schema(
       trim: true,
       select: false,
     },
+    propertyAge: {
+      type: Number,
+      required: [true, 'Property age must be provided'],
+    },
     slug: String,
     furnished: {
       type: Boolean,

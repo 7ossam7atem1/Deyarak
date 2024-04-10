@@ -22,6 +22,9 @@ router
   .get(propertyController.getDistances);
 
 router
+  .route('/view-on-map/:id')
+  .get(authController.protect, propertyController.viewOnMap);
+router
   .route('/top-5-cheap')
   .get(
     propertyController.aliastingTopProperties,

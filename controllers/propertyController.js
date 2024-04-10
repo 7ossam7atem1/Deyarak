@@ -447,3 +447,19 @@ exports.getPropertiesLocations = catchAsyncronization(
     });
   }
 );
+
+exports.viewOnMap = catchAsyncronization(async (req, res, next) => {
+  const propertyId = req.params.id;
+  const property = await Property.findById(propertyId);
+  if (!property) {
+    return next(new AppError('Property with that id not Found', 404));
+  }
+  const markOnMap = property.locations;
+  res.status(200).json({
+    status: 'success',
+    data: {
+      locations: markOnMap,
+    },
+  });
+});
+
