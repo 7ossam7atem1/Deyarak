@@ -43,6 +43,7 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(hpp());
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
@@ -50,8 +51,20 @@ app.use('/api/v1/reviews', reviewRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.all('*', (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+  if (req.originalUrl === '/') {
+    next(); // Allow root route
+  } else {
+    next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+  }
 });
+// app.use('/api/v1/properties', propertyRouter);
+// app.use('/api/v1/users', userRouter);
+// app.use('/api/v1/reviews', reviewRouter);
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// app.all('*', (req, res, next) => {
+//   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+// });
 
 app.use(errorHandler);
 module.exports = app;
