@@ -462,4 +462,3 @@ exports.viewOnMap = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
-

@@ -2,6 +2,7 @@ const multer = require('multer');
 const cloudinary = require('../utils/cloudinary');
 const sharp = require('sharp');
 const User = require('../models/userModel');
+const Contact = require('../models/contactModel');
 const factory = require('../controllers/factoryHandler');
 const AppError = require('../utils/appError');
 const catchAsyncronization = require('../utils/catchAsyncronization');
@@ -204,3 +205,32 @@ exports.createUser = (req, res) => {
 
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
+
+exports.contactUs = catchAsyncronization(async (req, res) => {
+  const { name, phone, messageTitle, message } = req.body;
+  const newContact = new Contact({
+    name,
+    phone,
+    messageTitle,
+    message,
+    sender: req.user.id,
+  });
+
+  await newContact.save();
+  res.status(201).json({
+    status: 'Success',
+    message: 'Your message has been sent',
+  });
+});
+
+exports.getContacts = catchAsyncronization(async (req, res) => {
+  const contacts = await Contact.find().populate({
+    path: 'sender',
+    select: '-_id photo name email',
+  });
+  res.status(200).json({
+    status: 'Success',
+    result: contacts.length,
+    data: contacts,
+  });
+});

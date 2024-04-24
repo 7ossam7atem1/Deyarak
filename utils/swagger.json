@@ -22,7 +22,11 @@
     },
     {
       "name": "Reviews",
-      "description": ""
+      "description": "User Review the Owners and Rating them to make everything clear for others"
+    },
+    {
+      "name": "Contacts",
+      "description": "Users Contact admins to report an application problem or feedback"
     }
   ],
   "components": {
@@ -1404,7 +1408,7 @@
     },
     "/api/v1/properties/view-on-map/{id}": {
       "get": {
-        "summary": "View property location on map",
+        "summary": "View certain property location on map",
         "tags": ["Properties"],
         "parameters": [
           {
@@ -1434,6 +1438,78 @@
           },
           "404": {
             "description": "Not found. Property with the provided ID does not exist."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/contact-us": {
+      "post": {
+        "summary": "Submit contact message",
+        "tags": ["Contacts"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "messageTitle": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "phone", "messageTitle", "message"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact message submitted successfully"
+          },
+          "400": {
+            "description": "Bad request. Missing or invalid parameters."
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/contacts": {
+      "get": {
+        "summary": "Get all contact messages",
+        "tags": ["Contacts"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact messages retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
           },
           "500": {
             "description": "Internal server error"
