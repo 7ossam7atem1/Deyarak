@@ -1516,6 +1516,39 @@
           }
         }
       }
+    },
+    "/api/v1/users/{userId}/reviews": {
+      "get": {
+        "summary": "Get reviews for a specific user",
+        "tags": ["Reviews"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to get reviews for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized. Access token is missing or invalid."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   }
 }
