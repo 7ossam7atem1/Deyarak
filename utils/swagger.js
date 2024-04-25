@@ -14,11 +14,11 @@ const options = {
   },
   servers: [
     {
-      url: 'http://localhost:2000/',
+      url: 'http://localhost:2000',
       description: 'Local Server',
     },
     {
-      url: 'https://deyarak-app.onrender.com/',
+      url: 'https://deyarak-app.onrender.com',
       description: 'Render Server',
     },
   ],
