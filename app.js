@@ -47,8 +47,8 @@ app.use(hpp());
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.all('*', (req, res, next) => {
   if (req.originalUrl === '/') {
