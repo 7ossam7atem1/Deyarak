@@ -11,7 +11,7 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
 router.use(authController.protect);
-router.post('/contactus',authController.restrictTo('user'), userController.contactUs);
+
 router.patch('/updateMyPassword/:id', authController.updatePassword);
 // router.get('/me', userController.getMe, userController.getUser);
 router.patch(
@@ -36,7 +36,7 @@ router.post(
 router.get('/wishlist/:userId', userController.getWishlist);
 
 router.use(authController.restrictTo('admin'));
-router.get('/getcontacts', userController.getContacts);
+
 router
   .route('/')
   .get(userController.getAllUsers)

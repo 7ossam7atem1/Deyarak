@@ -9,6 +9,7 @@ const cors = require('cors');
 const propertyRouter = require('./routes/propertyRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const contactRouter = require('./routes/contactRoutes');
 const errorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 const swaggerUi = require('swagger-ui-express');
@@ -47,6 +48,7 @@ app.use(hpp());
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/contacts' , contactRouter);
 // app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

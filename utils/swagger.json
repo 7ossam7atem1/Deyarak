@@ -1445,7 +1445,7 @@
         }
       }
     },
-    "/api/v1/contact-us": {
+    "/api/v1/contacts/contactus": {
       "post": {
         "summary": "Submit contact message",
         "tags": ["Contacts"],
@@ -1495,7 +1495,7 @@
         }
       }
     },
-    "/api/v1/contacts": {
+    "/api/v1/contacts/getcontacts": {
       "get": {
         "summary": "Get all contact messages",
         "tags": ["Contacts"],
