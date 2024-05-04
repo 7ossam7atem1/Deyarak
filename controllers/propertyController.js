@@ -430,22 +430,60 @@ exports.getDistances = catchAsyncronization(async (req, res, next) => {
   });
 });
 
+// exports.getPropertiesLocations = catchAsyncronization(
+//   async (req, res, next) => {
+//     const properties = await Property.find({
+//       locations: { $exists: true, $ne: [] },
+//     });
+
+//     const locations = properties.map((property) => property.locations);
+
+//     res.status(200).json({
+//       status: 'success',
+//       result: locations.length,
+//       data: {
+//         locations: locations,
+//       },
+//     });
+//   }
+// );
+
+// exports.getPropertiesLocations = catchAsyncronization(
+//   async (req, res, next) => {
+//     const properties = await Property.find({
+//       locations: { $exists: true, $ne: [] },
+//     });
+
+//     const locations = properties.map((property) => ({
+//       locations: property.locations,
+//       price: property.price,
+//     }));
+
+//     res.status(200).json({
+//       status: 'success',
+//       result: locations.length,
+//       data: {
+//         locations: locations,
+//       },
+//     });
+//   }
+// );
 exports.getPropertiesLocations = catchAsyncronization(
   async (req, res, next) => {
     const properties = await Property.find({
       locations: { $exists: true, $ne: [] },
     });
 
-    const locations = properties.map((property) => ({
-      locations: property.locations,
+    const locationsWithPrices = properties.map((property) => ({
+      ...property.locations,
       price: property.price,
     }));
 
     res.status(200).json({
       status: 'success',
-      result: locations.length,
+      result: locationsWithPrices.length,
       data: {
-        locations: locations,
+        locations: locationsWithPrices,
       },
     });
   }
