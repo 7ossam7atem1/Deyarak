@@ -436,7 +436,10 @@ exports.getPropertiesLocations = catchAsyncronization(
       locations: { $exists: true, $ne: [] },
     });
 
-    const locations = properties.map((property) => property.locations);
+    const locations = properties.map((property) => ({
+      locations: property.locations,
+      price: property.price,
+    }));
 
     res.status(200).json({
       status: 'success',
