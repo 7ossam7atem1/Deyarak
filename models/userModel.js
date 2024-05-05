@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema({
   active: { type: Boolean, default: true, select: false },
   wishlist: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
-    select: false,
+    select: true,
   },
 });
 

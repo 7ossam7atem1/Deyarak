@@ -132,12 +132,11 @@ exports.addToWishlist = catchAsyncronization(async (req, res, next) => {
   const userId = req.params.userId;
   const propertyId = req.params.propertyId;
   const user = await User.findById(userId);
+
   if (!user) {
     return next(new AppError('User with that id not found', 404));
   }
-  if (!user.wishlist) {
-    user.wishlist = [];
-  }
+
   if (!user.wishlist.includes(propertyId)) {
     user.wishlist.push(propertyId);
     await user.save({ validateBeforeSave: false });
@@ -208,4 +207,3 @@ exports.createUser = (req, res) => {
 
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
-
