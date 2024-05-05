@@ -135,6 +135,9 @@ exports.addToWishlist = catchAsyncronization(async (req, res, next) => {
   if (!user) {
     return next(new AppError('User with that id not found', 404));
   }
+  if (!user.wishlist) {
+    user.wishlist = [];
+  }
   if (!user.wishlist.includes(propertyId)) {
     user.wishlist.push(propertyId);
     await user.save({ validateBeforeSave: false });
