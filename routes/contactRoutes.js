@@ -6,6 +6,7 @@ const router = express.Router();
 router.use(authController.protect);
 router.post(
   '/contactus',
+  authController.restrictTo('user'),
   contactController.contactUs
 );
 router.get('/getcontacts', contactController.getContacts);

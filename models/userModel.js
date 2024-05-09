@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema({
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
   active: { type: Boolean, default: true, select: false },
+
   wishlist: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
     select: true,

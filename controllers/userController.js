@@ -175,6 +175,25 @@ exports.removeFromWishlist = catchAsyncronization(async (req, res, next) => {
   }
 });
 
+// exports.getWishlist = catchAsyncronization(async (req, res, next) => {
+//   const userId = req.params.userId;
+
+//   const user = await User.findById(userId).populate({
+//     path: 'wishlist',
+//     select:
+//       'price size numberOfRooms location images numberOfBathrooms address',
+//   });
+
+//   if (!user) {
+//     return next(new AppError('User with that id not found', 404));
+//   }
+
+//   res.status(200).json({
+//     status: 'success',
+//     results: user.wishlist.length,
+//     wishlist: user.wishlist });
+// });
+
 exports.getWishlist = catchAsyncronization(async (req, res, next) => {
   const userId = req.params.userId;
 
@@ -188,10 +207,15 @@ exports.getWishlist = catchAsyncronization(async (req, res, next) => {
     return next(new AppError('User with that id not found', 404));
   }
 
+  const wishlistObject = {};
+  user.wishlist.forEach((item, index) => {
+    wishlistObject[index + 1] = item;
+  });
+
   res.status(200).json({
     status: 'success',
     results: user.wishlist.length,
-    wishlist: user.wishlist,
+    wishlist: wishlistObject,
   });
 });
 

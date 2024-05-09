@@ -1,10 +1,19 @@
 const mongoose = require('mongoose');
 const contactSchema = new mongoose.Schema(
   {
-    name: String,
-    phone: String,
-    messageTitle: String,
-    message: String,
+    name: {
+      type: String,
+      required: [true, 'You must provide your name'],
+    },
+    phone: { type: String, required: [true, 'You must provide your phone'] },
+    messageTitle: {
+      type: String,
+      required: [true, 'You must provide your message Title'],
+    },
+    message: {
+      type: String,
+      required: [true, 'You must provide your message'],
+    },
     createdAt: { type: Date, default: Date.now(), select: true },
     sender: { type: mongoose.Schema.ObjectId, ref: 'User' },
   },
