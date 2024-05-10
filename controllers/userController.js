@@ -199,8 +199,7 @@ exports.getWishlist = catchAsyncronization(async (req, res, next) => {
 
   const user = await User.findById(userId).populate({
     path: 'wishlist',
-    select:
-      'price size numberOfRooms location images numberOfBathrooms address',
+    select: 'price size numberOfRooms locations images numberOfBathrooms',
   });
 
   if (!user) {
