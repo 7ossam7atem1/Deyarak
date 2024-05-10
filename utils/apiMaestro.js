@@ -7,7 +7,7 @@ class APIFeatures {
   filtering() {
     const queryObject = { ...this.queryString };
 
-    const execludedFields = ['page', 'sort', 'limit', 'fields'];
+    const execludedFields = ['page', 'sort', 'limit', 'fields', 'address'];
     execludedFields.forEach((field) => {
       delete queryObject[field];
     });
@@ -50,12 +50,14 @@ class APIFeatures {
     this.query = this.query.skip(skip).limit(limit);
     return this;
   }
-
   searching() {
     const { address } = this.queryString;
-    let filter = {};
-    if (address) filter.address = { $regex: address, $options: 'i' };
-    this.query.find(filter);
+    if (address) {
+      const filter = {
+        'locations.address': { $regex: new RegExp(address, 'i') },
+      };
+      this.query = this.query.find(filter);
+    }
     return this;
   }
 }

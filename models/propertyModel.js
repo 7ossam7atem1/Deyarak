@@ -80,7 +80,8 @@ const propertySchema = new mongoose.Schema(
   }
 );
 
-propertySchema.index({ address: 'text' });
+// propertySchema.index({ address: 'text' });
+propertySchema.index({'locations.address': 'text'});
 // propertySchema.index({ locations: '2dsphere' });
 propertySchema.index({ 'locations.coordinates': '2dsphere' });
 //virtual properties
