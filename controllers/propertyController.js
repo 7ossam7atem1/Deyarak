@@ -272,7 +272,7 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
           type: 'Point',
           coordinates: currentProperty.locations.coordinates,
         },
-        $maxDistance: 10000, // Maximum distance in meters (adjust as needed)
+        $maxDistance: 10000,
       },
     },
   };
@@ -296,6 +296,9 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
               $lte: currentProperty.numberOfRooms + 2,
             },
           },
+          {
+            category: currentProperty.category,
+          },
         ],
       },
     ],
@@ -305,11 +308,23 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
     $and: [locationCriteria, sizeAndRoomCriteria],
   };
 
-  const relatedProperties = await Property.find(criteria)
+  let relatedProperties = await Property.find(criteria)
     .select(
       'price size numberOfRooms locations images numberOfBathrooms address category'
     )
     .limit(8);
+
+  // If no related properties found, relax the criteria
+  if (relatedProperties.length === 0) {
+    relatedProperties = await Property.find({
+      _id: { $ne: propertyId },
+    })
+      .select(
+        'price size numberOfRooms locations images numberOfBathrooms address category'
+      )
+      .limit(5);
+  }
+
   res.status(200).json({
     status: 'success',
     results: relatedProperties.length,
@@ -318,6 +333,67 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
+
+// exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
+//   const propertyId = req.params.id;
+//   const currentProperty = await Property.findById(propertyId);
+//   if (!currentProperty) {
+//     return next(new AppError('Property with that id not found', 404));
+//   }
+
+//   const locationCriteria = {
+//     'locations.coordinates': {
+//       $near: {
+//         $geometry: {
+//           type: 'Point',
+//           coordinates: currentProperty.locations.coordinates,
+//         },
+//         $maxDistance: 10000, // Maximum distance in meters (adjust as needed)
+//       },
+//     },
+//   };
+
+//   const sizeAndRoomCriteria = {
+//     $and: [
+//       {
+//         _id: { $ne: propertyId },
+//       },
+//       {
+//         $or: [
+//           {
+//             size: {
+//               $gte: currentProperty.size - 100,
+//               $lte: currentProperty.size + 100,
+//             },
+//           },
+//           {
+//             numberOfRooms: {
+//               $gte: currentProperty.numberOfRooms - 2,
+//               $lte: currentProperty.numberOfRooms + 2,
+//             },
+//           },
+//         ],
+//       },
+//     ],
+//   };
+
+//   const criteria = {
+//     $and: [locationCriteria, sizeAndRoomCriteria],
+//   };
+
+//   const relatedProperties = await Property.find(criteria)
+//     .select(
+//       'price size numberOfRooms locations images numberOfBathrooms address category'
+//     )
+//     .limit(8);
+//   res.status(200).json({
+//     status: 'success',
+//     results: relatedProperties.length,
+//     data: {
+//       data: relatedProperties,
+//     },
+//   });
+// });
 
 // exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
 //   const propertyId = req.params.id;

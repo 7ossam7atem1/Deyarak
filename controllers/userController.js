@@ -118,6 +118,46 @@ exports.updateMe = catchAsyncronization(async (req, res, next) => {
   });
 });
 
+// exports.updateMe = catchAsyncronization(async (req, res, next) => {
+//   // Check if there is a photo uploaded
+//   if (req.file && req.file.cloudinaryUrl && req.file.cloudinaryPublicId) {
+//     req.body.photo = {
+//       url: req.file.cloudinaryUrl,
+//       publicId: req.file.cloudinaryPublicId,
+//     };
+//   }
+
+//   // Check if user is trying to update password
+//   if (req.body.password || req.body.passwordConfirm) {
+//     return next(
+//       new AppError(
+//         'This route is not for password updating. Please use /updateMyPassword',
+//         400
+//       )
+//     );
+//   }
+
+//   // Filter only allowed fields to update
+//   const allowedFields = ['name', 'email', 'phone', 'photo'];
+//   const filteredBody = {};
+//   for (const field of allowedFields) {
+//     if (req.body[field]) {
+//       filteredBody[field] = req.body[field];
+//     }
+//   }
+
+//   // Update user with filtered fields
+//   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+//     new: true,
+//     runValidators: true,
+//   });
+
+//   res.status(200).json({
+//     status: 'success',
+//     data: updatedUser,
+//   });
+// });
+
 exports.deleteMe = catchAsyncronization(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, {
     active: false,
