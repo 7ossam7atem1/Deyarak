@@ -51,8 +51,9 @@ exports.getOne = (Model, populateOptions) =>
     if (!document) {
       return next(new AppError('document with that id not found', 404));
     }
+
     document.isOwner =
-      req.user && req.user.id === document.owner._id.toString();
+      req.user && req.user.id === document.owner?._id.toString();
     console.log(req.user.id);
     res.status(200).json({
       status: 'success',
