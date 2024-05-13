@@ -43,7 +43,7 @@ router
 
 router
   .route('/:id')
-  .get(propertyController.getProperty)
+  .get(authController.protect, propertyController.getProperty)
   .patch(
     authController.protect,
     authController.restrictTo('admin', 'user'),
