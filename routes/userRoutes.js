@@ -23,6 +23,11 @@ router.patch(
 
 router.route('/deleteMe').delete(userController.deleteMe);
 router.get('/me', userController.getMe, userController.getUser);
+router.get(
+  '/my-properties',
+  userController.getMe,
+  userController.getMyProperties
+);
 
 router.post(
   '/add-to-wishlist/:userId/:propertyId',

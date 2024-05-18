@@ -6,6 +6,7 @@ const Contact = require('../models/contactModel');
 const factory = require('../controllers/factoryHandler');
 const AppError = require('../utils/appError');
 const catchAsyncronization = require('../utils/catchAsyncronization');
+const Property = require('../models/propertyModel');
 
 const multerStorage = multer.memoryStorage();
 
@@ -82,6 +83,21 @@ exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
 };
+
+exports.getMyProperties = catchAsyncronization(async (req, res, next) => {
+  const userId = req.user.id;
+  const properties = await Property.find({ owner: userId });
+  if (!properties) {
+    return next(new AppError('No properties found for this user', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    result: properties.length,
+    data: {
+      data: properties,
+    },
+  });
+});
 
 exports.updateMe = catchAsyncronization(async (req, res, next) => {
   if (req.file && req.file.cloudinaryUrl && req.file.cloudinaryPublicId) {
