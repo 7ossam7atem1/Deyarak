@@ -162,9 +162,7 @@ exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
     // const resetURL = `${req.protocol}://${req.get(
     //   'host'
     // )}/api/v1/users/resetPassword/${resetToken}`;
-    const resetURL = `${req.protocol}://${req.get(
-      'host'
-    )}/resetPassword/${resetToken}`;
+    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
     res.status(200).json({
