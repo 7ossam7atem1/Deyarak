@@ -81,6 +81,39 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   next();
 });
 
+// exports.updateProperty = catchAsyncronization(async (req, res, next) => {
+//   const property = await Property.findById(req.params.id);
+
+//   if (!property) {
+//     return next(new AppError('Property with that id not found', 404));
+//   }
+
+//   const oldPublicIds = property.images.map((image) => image.public_id);
+
+//   const newPublicIds = req.body.images.map((image) => image.public_id);
+
+//   const publicIdsToDelete = oldPublicIds.filter(
+//     (oldPublicId) => !newPublicIds.includes(oldPublicId)
+//   );
+
+//   const deletePromises = publicIdsToDelete.map(async (public_id) => {
+//     await cloudinary.v2.uploader.destroy(public_id);
+//   });
+
+//   await Promise.all(deletePromises);
+
+//   property.images = req.body.images;
+
+//   await property.save();
+
+//   res.status(200).json({
+//     status: 'Success',
+//     message: 'Property updated successfully!',
+//     data: {
+//       data: property,
+//     },
+//   });
+// });
 exports.updateProperty = catchAsyncronization(async (req, res, next) => {
   const property = await Property.findById(req.params.id);
 
@@ -89,8 +122,7 @@ exports.updateProperty = catchAsyncronization(async (req, res, next) => {
   }
 
   const oldPublicIds = property.images.map((image) => image.public_id);
-
-  const newPublicIds = req.body.images.map((image) => image.public_id);
+  const newPublicIds = req.body.images ? req.body.images.map((image) => image.public_id) : [];
 
   const publicIdsToDelete = oldPublicIds.filter(
     (oldPublicId) => !newPublicIds.includes(oldPublicId)
@@ -102,7 +134,15 @@ exports.updateProperty = catchAsyncronization(async (req, res, next) => {
 
   await Promise.all(deletePromises);
 
-  property.images = req.body.images;
+  if (req.body.images) {
+    property.images = req.body.images;
+  }
+
+  Object.keys(req.body).forEach((key) => {
+    if (key !== 'images') {
+      property[key] = req.body[key];
+    }
+  });
 
   await property.save();
 
@@ -114,6 +154,7 @@ exports.updateProperty = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
+
 
 exports.deleteProperty = catchAsyncronization(async (req, res, next) => {
   const property = await Property.findById(req.params.id).populate('images');

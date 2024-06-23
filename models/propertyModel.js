@@ -45,6 +45,7 @@ const propertySchema = new mongoose.Schema(
       // required: true,
       trim: true,
       select: false,
+      required: [true, 'Property Address must be provided'],
     },
     propertyAge: {
       type: Number,
@@ -54,14 +55,17 @@ const propertySchema = new mongoose.Schema(
     furnished: {
       type: Boolean,
       default: false,
+      required: [true, 'Select if your Property is furnished'],
     },
     finished: {
       type: Boolean,
       default: false,
+      required: [true, 'Select if your Property is finished'],
     },
     elevator: {
       type: Boolean,
       default: false,
+      required: [true, 'Select if your Home Has Elevator'],
     },
     isOwner: {
       type: Boolean,
@@ -69,11 +73,13 @@ const propertySchema = new mongoose.Schema(
     },
     amenities: {
       type: [String],
+      required: [true, 'select at least 1 amenity'],
     },
+
     description: {
       type: String,
       trim: true,
-      required: [false, 'A tour must have a description'],
+      required: [true, 'A tour must have a description'],
     },
     createdAt: { type: Date, default: Date.now(), select: false },
     owner: { type: mongoose.Schema.ObjectId, ref: 'User' },
@@ -122,3 +128,4 @@ propertySchema.post(/^find/, function (docs, next) {
 const Property = mongoose.model('Property', propertySchema);
 
 module.exports = Property;
+
