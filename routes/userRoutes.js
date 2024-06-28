@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const propertyController = require('../controllers/propertyController');
 const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
@@ -39,7 +40,11 @@ router.post(
 );
 
 router.get('/wishlist/:userId', userController.getWishlist);
-
+router.get(
+  '/userProperties/:userId',
+  authController.protect,
+  propertyController.getUserProperties
+);
 router.use(authController.restrictTo('admin'));
 
 router

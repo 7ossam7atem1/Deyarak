@@ -40,9 +40,7 @@ router
     propertyController.resizePropertyImages,
     propertyController.createProperty
   );
-router
-  .route('/:userId')
-  .get(authController.protect, propertyController.getUserProperties);
+
 router
   .route('/:id')
   .get(authController.protect, propertyController.getProperty)

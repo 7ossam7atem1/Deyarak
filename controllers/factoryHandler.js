@@ -43,6 +43,23 @@ exports.createOne = (Model) =>
     });
   });
 
+// exports.getOne = (Model, populateOptions) =>
+//   catchAsyncronization(async (req, res, next) => {
+//     let query = Model.findById(req.params.id);
+//     if (populateOptions) query = query.populate(populateOptions);
+//     const document = await query;
+
+//     if (!document) {
+//       return next(new AppError('document with that id not found', 404));
+//     }
+//     document.isOwner =
+//       req.user && req.user.id === document.owner?._id.toString();
+//     console.log(req.user.id);
+//     res.status(200).json({
+//       status: 'success',
+//       data: { data: document },
+//     });
+//   });
 exports.getOne = (Model, populateOptions) =>
   catchAsyncronization(async (req, res, next) => {
     let query = Model.findById(req.params.id);
@@ -52,15 +69,16 @@ exports.getOne = (Model, populateOptions) =>
     if (!document) {
       return next(new AppError('document with that id not found', 404));
     }
+   
     document.isOwner =
       req.user && req.user.id === document.owner?._id.toString();
     console.log(req.user.id);
+    console.log(document);
     res.status(200).json({
       status: 'success',
       data: { data: document },
     });
   });
-
 // exports.getAll = (Model) =>
 //   catchAsyncronization(async (req, res, next) => {
 //     let filter = {};
@@ -125,7 +143,7 @@ exports.getAll = (Model) =>
     const allDocuments = await features.query;
 
     const reviewedUserId = req.params.reviewedUserId;
-    let totalAvgRating = 0;
+    let totalAvgRating;
 
     if (reviewedUserId) {
       const reviewedUser = await User.findById(reviewedUserId).select(
