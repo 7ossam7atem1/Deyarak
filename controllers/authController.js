@@ -149,6 +149,36 @@ exports.restrictTo = (...roles) => {
   };
 };
 
+// exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
+//   const user = await User.findOne({ email: req.body.email });
+//   if (!user) {
+//     return next(new AppError('There is no user with that email address', 404));
+//   }
+
+//   const resetToken = user.createPasswordResetToken();
+//   await user.save({ validateBeforeSave: false });
+
+//   try {
+//     // const resetURL = `${req.protocol}://${req.get(
+//     //   'host'
+//     // )}/api/v1/users/resetPassword/${resetToken}`;
+//     const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+
+//     await new Email(user, resetURL).sendPasswordReset();
+//     res.status(200).json({
+//       status: 'success',
+//       message: 'Token sent to email, check your inbox Please!',
+//     });
+//   } catch (err) {
+//     user.passwordResetToken = undefined;
+//     user.passwordResetExpires = undefined;
+//     await user.save({ validateBeforeSave: false });
+
+//     return next(
+//       new AppError('There was an error sending email, Try Again later!', 500)
+//     );
+//   }
+// });
 exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -159,15 +189,20 @@ exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    // const resetURL = `${req.protocol}://${req.get(
-    //   'host'
-    // )}/api/v1/users/resetPassword/${resetToken}`;
-    const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
+    let resetURL;
+
+    if (req.headers['x-client-type'] === 'mobile') {
+      resetURL = `myapp://resetPassword/${resetToken}`;
+    } else {
+      resetURL = `${req.protocol}://${req.get(
+        'host'
+      )}/resetPassword/${resetToken}`;
+    }
 
     await new Email(user, resetURL).sendPasswordReset();
     res.status(200).json({
       status: 'success',
-      message: 'Token sent to email, check your inbox Please!',
+      message: 'Token sent to email, check your inbox please!',
     });
   } catch (err) {
     user.passwordResetToken = undefined;
@@ -175,7 +210,10 @@ exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     return next(
-      new AppError('There was an error sending email, Try Again later!', 500)
+      new AppError(
+        'There was an error sending the email, try again later!',
+        500
+      )
     );
   }
 });
@@ -227,4 +265,3 @@ exports.updatePassword = catchAsyncronization(async (req, res, next) => {
   await user.save();
   createSendToken(user, 200, res);
 });
-
