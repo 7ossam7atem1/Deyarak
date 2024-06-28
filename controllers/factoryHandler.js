@@ -69,7 +69,7 @@ exports.getOne = (Model, populateOptions) =>
     if (!document) {
       return next(new AppError('document with that id not found', 404));
     }
-   
+
     document.isOwner =
       req.user && req.user.id === document.owner?._id.toString();
     console.log(req.user.id);
@@ -127,6 +127,7 @@ exports.getOne = (Model, populateOptions) =>
 //       },
 //     });
 //   });
+
 exports.getAll = (Model) =>
   catchAsyncronization(async (req, res, next) => {
     let filter = {};

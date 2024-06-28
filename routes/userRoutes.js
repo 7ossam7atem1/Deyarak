@@ -42,7 +42,6 @@ router.post(
 router.get('/wishlist/:userId', userController.getWishlist);
 router.get(
   '/userProperties/:userId',
-  authController.protect,
   propertyController.getUserProperties
 );
 router.use(authController.restrictTo('admin'));
