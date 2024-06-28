@@ -15,6 +15,9 @@ router
   );
 
 router
+  .route('/:reviewedUserId')
+  .get(authController.protect, reviewController.getReviewsStatistics);
+router
   .route('/:id')
   .get(reviewController.getReview)
   .patch(

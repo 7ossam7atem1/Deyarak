@@ -122,7 +122,9 @@ exports.updateProperty = catchAsyncronization(async (req, res, next) => {
   }
 
   const oldPublicIds = property.images.map((image) => image.public_id);
-  const newPublicIds = req.body.images ? req.body.images.map((image) => image.public_id) : [];
+  const newPublicIds = req.body.images
+    ? req.body.images.map((image) => image.public_id)
+    : [];
 
   const publicIdsToDelete = oldPublicIds.filter(
     (oldPublicId) => !newPublicIds.includes(oldPublicId)
@@ -154,7 +156,6 @@ exports.updateProperty = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
-
 
 exports.deleteProperty = catchAsyncronization(async (req, res, next) => {
   const property = await Property.findById(req.params.id).populate('images');
@@ -617,6 +618,21 @@ exports.viewOnMap = catchAsyncronization(async (req, res, next) => {
     status: 'success',
     data: {
       locations: markOnMap,
+    },
+  });
+});
+
+exports.getUserProperties = catchAsyncronization(async (req, res, next) => {
+  const userId = req.params.userId;
+  const userProperties = await Property.find({ owner: userId });
+  if (!userProperties) {
+    return next(new AppError(`This user didn't post any properties`, 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    result: userProperties.length,
+    data: {
+      data: userProperties,
     },
   });
 });

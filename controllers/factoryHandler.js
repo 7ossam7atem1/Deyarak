@@ -1,6 +1,7 @@
 const catchAsyncronization = require('../utils/catchAsyncronization');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiMaestro');
+const User = require('../models/userModel');
 
 exports.deleteOne = (Model) =>
   catchAsyncronization(async (req, res, next) => {
@@ -8,7 +9,6 @@ exports.deleteOne = (Model) =>
     if (!document) {
       return next(new AppError('document with that id not found', 404));
     }
-    
     res.status(204).json({
       status: 'success',
       message: 'deleted Successfully',
@@ -52,7 +52,6 @@ exports.getOne = (Model, populateOptions) =>
     if (!document) {
       return next(new AppError('document with that id not found', 404));
     }
-
     document.isOwner =
       req.user && req.user.id === document.owner?._id.toString();
     console.log(req.user.id);
@@ -62,6 +61,54 @@ exports.getOne = (Model, populateOptions) =>
     });
   });
 
+// exports.getAll = (Model) =>
+//   catchAsyncronization(async (req, res, next) => {
+//     let filter = {};
+//     if (req.params.reviewedUserId)
+//       filter = { reviewedUser: req.params.reviewedUserId };
+//     console.log(req.query);
+
+//     const features = new APIFeatures(Model.find(filter), req.query)
+//       .filtering()
+//       .sorting()
+//       .limitingFields()
+//       .pagination()
+//       .searching();
+//     // const allDocuments = await features.query.explain();
+//     const allDocuments = await features.query;
+//     const ratingsStats = await Model.aggregate([
+//       { $match: filter },
+//       {
+//         $group: {
+//           _id: '$reviewedUser',
+//           avgRating: { $avg: '$rating' },
+//         },
+//       },
+//     ]);
+
+//     const ratingMap = {};
+//     ratingsStats.forEach((stat) => {
+//       ratingMap[stat._id.toString()] = stat.avgRating;
+//     });
+
+//     allDocuments.forEach((document) => {
+//       if (document.reviewer) {
+//         document.isReviewer =
+//           req.user && req.user.id === document.reviewer._id.toString();
+//       } else {
+//         document.isReviewer = false;
+//       }
+//       document.avgRating = ratingMap[document.reviewedUser._id.toString()] || 0;
+//     });
+
+//     res.status(200).json({
+//       status: 'success',
+//       result: allDocuments.length,
+//       data: {
+//         data: allDocuments,
+//       },
+//     });
+//   });
 exports.getAll = (Model) =>
   catchAsyncronization(async (req, res, next) => {
     let filter = {};
@@ -75,12 +122,33 @@ exports.getAll = (Model) =>
       .limitingFields()
       .pagination()
       .searching();
-    // const allDocuments = await features.query.explain();
     const allDocuments = await features.query;
-    console.log(req.requestTime);
+
+    const reviewedUserId = req.params.reviewedUserId;
+    let totalAvgRating = 0;
+
+    if (reviewedUserId) {
+      const reviewedUser = await User.findById(reviewedUserId).select(
+        'ratingsAverage'
+      );
+      if (reviewedUser) {
+        totalAvgRating = reviewedUser.ratingsAverage;
+      }
+    }
+
+    allDocuments.forEach((document) => {
+      if (document.reviewer) {
+        document.isReviewer =
+          req.user && req.user.id === document.reviewer._id.toString();
+      } else {
+        document.isReviewer = false;
+      }
+    });
+
     res.status(200).json({
       status: 'success',
       result: allDocuments.length,
+      totalAvgRating,
       data: {
         data: allDocuments,
       },

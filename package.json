@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "test": "npx jasmine"
   },
   "keywords": [],
   "author": "Hossam Hatem",
@@ -35,5 +36,9 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "jasmine": "^5.1.0",
+    "supertest": "^7.0.0"
   }
 }

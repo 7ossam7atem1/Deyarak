@@ -25,6 +25,10 @@ const reviewSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Reviewed user must be specified'],
     },
+    isReviewer: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
