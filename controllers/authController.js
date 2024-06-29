@@ -194,9 +194,10 @@ exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
     if (req.headers['x-client-type'] === 'mobile') {
       resetURL = `myapp://resetPassword/${resetToken}`;
     } else {
-      resetURL = `${req.protocol}://${req.get(
-        'host'
-      )}/resetPassword/${resetToken}`;
+      // resetURL = `${req.protocol}://${req.get(
+      //   'host'
+      // )}/resetPassword/${resetToken}`;
+      resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
     }
 
     await new Email(user, resetURL).sendPasswordReset();

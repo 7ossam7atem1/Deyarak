@@ -28,6 +28,10 @@ const reviewSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    canReview:{
+      type:Boolean,
+      default:true,
+    }
   },
   {
     toJSON: { virtuals: true },
