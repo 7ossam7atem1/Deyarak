@@ -3,13 +3,12 @@ const factory = require('../controllers/factoryHandler');
 const catchAsyncronization = require('../utils/catchAsyncronization');
 const mongoose = require('mongoose');
 
-
 exports.getAllReviews = factory.getAll(Review);
 
 exports.setReviewedUserAndReviewerId = (req, res, next) => {
   console.log('Middleware executed.');
 
-//   // Check and set reviewedUser
+  //   // Check and set reviewedUser
   if (!req.body.reviewedUser) {
     req.body.reviewedUser = req.params.reviewedUserId;
     console.log('Reviewed user set to:', req.body.reviewedUser);
@@ -24,42 +23,71 @@ exports.setReviewedUserAndReviewerId = (req, res, next) => {
   next();
 };
 
+// exports.getReviewsStatistics = catchAsyncronization(async (req, res, next) => {
+//   const reviewedUserId = req.params.reviewedUserId;
+
+//   const stats = await Review.aggregate([
+//     {
+//       $match: { reviewedUser:new mongoose.Types.ObjectId(reviewedUserId) }
+//     },
+//     {
+//       $group: {
+//         _id: '$rating',
+//         count: { $sum: 1 }
+//       }
+//     },
+//     {
+//       $sort: { _id: 1 }
+//     }
+//   ]);
+
+//   const ratingStats = {
+//     1: 0,
+//     2: 0,
+//     3: 0,
+//     4: 0,
+//     5: 0
+//   };
+
+//   stats.forEach(stat => {
+//     ratingStats[stat._id] = stat.count;
+//   });
+
+//   res.status(200).json({
+//     status: 'success',
+//     data: ratingStats
+//   });
+// });
+
 exports.getReviewsStatistics = catchAsyncronization(async (req, res, next) => {
   const reviewedUserId = req.params.reviewedUserId;
 
   const stats = await Review.aggregate([
     {
-      $match: { reviewedUser:new mongoose.Types.ObjectId(reviewedUserId) }
+      $match: { reviewedUser: new mongoose.Types.ObjectId(reviewedUserId) },
     },
     {
       $group: {
         _id: '$rating',
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
     {
-      $sort: { _id: 1 } 
-    }
+      $sort: { _id: 1 },
+    },
   ]);
 
-  const ratingStats = {
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0
-  };
+  const ratingStats = Array(5).fill(0);
 
-  stats.forEach(stat => {
-    ratingStats[stat._id] = stat.count;
+  stats.forEach((stat) => {
+    ratingStats[stat._id - 1] = stat.count;
   });
 
   res.status(200).json({
     status: 'success',
-    data: ratingStats
+    data: ratingStats,
   });
 });
-
 
 // exports.setTourandUserIds = (req, res, next) => {
 //   //Allow nested routes

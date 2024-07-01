@@ -192,11 +192,11 @@ exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
     let resetURL;
 
     if (req.headers['x-client-type'] === 'mobile') {
-      resetURL = `myapp://resetPassword/${resetToken}`;
+      // resetURL = `myapp://resetPassword/${resetToken}`;
+      resetURL = `${req.protocol}://${req.get(
+        'host'
+      )}/resetPassword/${resetToken}`;
     } else {
-      // resetURL = `${req.protocol}://${req.get(
-      //   'host'
-      // )}/resetPassword/${resetToken}`;
       resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
     }
 
