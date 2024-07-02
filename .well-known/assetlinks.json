@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.deyarakapp",
+      "sha256_cert_fingerprints": [
+        "20:5A:59:2D:76:11:77:2C:91:28:D9:E6:CE:DC:DD:C2:BF:9C:72:43:D0:E2:E0:66:4E:3F:6C:10:C7:FF:F6:61"
+      ]
+    }
+  }
+]
