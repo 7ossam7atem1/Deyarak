@@ -71,6 +71,10 @@ const propertySchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isAvailable: {
+      type: Boolean,
+      default: true,
+    },
     amenities: {
       type: [String],
       required: [true, 'select at least 1 amenity'],
@@ -128,4 +132,3 @@ propertySchema.post(/^find/, function (docs, next) {
 const Property = mongoose.model('Property', propertySchema);
 
 module.exports = Property;
-
