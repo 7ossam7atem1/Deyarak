@@ -28,10 +28,10 @@ const reviewSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    canReview:{
-      type:Boolean,
-      default:true,
-    }
+    canReview: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -61,7 +61,7 @@ reviewSchema.statics.calcAverageRatings = async function (reviewedUserId) {
       },
     },
   ]);
-  // console.log(stats);
+  console.log(stats);
 
   //if you removed this if you will get an errror because array stats is empty
   if (stats.length > 0) {
@@ -92,6 +92,17 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 reviewSchema.post(/^findOneAnd/, async function () {
   if (this.r && this.r.constructor === Review) {
     await Review.calcAverageRatings(this.r.reviewedUser);
+  }
+});
+
+reviewSchema.post('findOneAndDelete', async function (doc) {
+  if (doc) {
+    await doc.constructor.calcAverageRatings(doc.reviewedUser);
+  }
+});
+reviewSchema.post('findOneAndUpdate', async function (doc) {
+  if (doc) {
+    await doc.constructor.calcAverageRatings(doc.reviewedUser);
   }
 });
 
