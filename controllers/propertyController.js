@@ -366,6 +366,9 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
       )
       .limit(5);
   }
+  if (!relatedProperties) {
+    return next(new AppError('No Related suggestions for this property', 404));
+  }
 
   res.status(200).json({
     status: 'success',
