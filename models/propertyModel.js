@@ -27,7 +27,12 @@ const propertySchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['apartment', 'furnished apartment', 'family house', 'villa'],
+      enum: [
+        'unfurnished apartment',
+        'furnished apartment',
+        'family house',
+        'villa',
+      ],
       required: true,
     },
     locations: {
