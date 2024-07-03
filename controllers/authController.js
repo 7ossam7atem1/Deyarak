@@ -96,6 +96,9 @@ exports.login = catchAsyncronization(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect Email or Password', 401));
   }
+  if (user.active === false) {
+    return next(new AppError('Your account has been deActivated', 403));
+  }
 
   createSendToken(user, 200, res);
 });

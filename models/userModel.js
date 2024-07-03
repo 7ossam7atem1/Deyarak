@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-
+const AppError = require('../utils/appError');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema({
   },
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
-  active: { type: Boolean, default: true, select: false },
+  active: { type: Boolean, default: true, select: true },
 
   wishlist: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
@@ -101,10 +101,10 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.pre(/^find/, function (next) {
-  this.find({ active: { $ne: false } });
-  next();
-});
+// userSchema.pre(/^find/, function (next) {
+//   this.find({ active: { $ne: false } });
+//   next();
+// });
 
 userSchema.methods.correctPassword = async function (
   candidatePassowrd,
