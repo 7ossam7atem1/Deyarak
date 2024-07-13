@@ -9,6 +9,7 @@ const cors = require('cors');
 const propertyRouter = require('./routes/propertyRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const paymentRouter = require('./routes/paymentRoutes');
 const contactRouter = require('./routes/contactRoutes');
 const errorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
@@ -49,8 +50,8 @@ app.use(hpp());
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/rentings', paymentRouter);
 app.use('/api/v1/contacts', contactRouter);
-// app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/.well-known', express.static(path.join(__dirname, '.well-known')));
 
@@ -61,14 +62,6 @@ app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
   }
 });
-// app.use('/api/v1/properties', propertyRouter);
-// app.use('/api/v1/users', userRouter);
-// app.use('/api/v1/reviews', reviewRouter);
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// app.all('*', (req, res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
-// });
 
 app.use(errorHandler);
 module.exports = app;

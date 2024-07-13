@@ -10,7 +10,8 @@ describe('API Endpoints', () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 
   let authToken;
-  const testPropertyId = '662eb3e293cecf21985e3af6';
+  let testUserId;
+  const testPropertyId = '66868061e79db3c436837b50';
 
   beforeAll(async () => {
     const Database = process.env.DATABASE.replace(
@@ -38,6 +39,7 @@ describe('API Endpoints', () => {
     }
 
     console.log('Test user:', testUser);
+    testUserId = testUser._id; // Store test user id for later use
 
     const loginResponse = await request(app).post('/api/v1/users/login').send({
       email: 'test@example.com',
@@ -98,8 +100,6 @@ describe('API Endpoints', () => {
   });
 
   describe('PATCH /api/v1/users/updateMe', () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-
     it('should update user details when authenticated', async () => {
       const response = await request(app)
         .patch('/api/v1/users/updateMe')
@@ -114,6 +114,7 @@ describe('API Endpoints', () => {
       console.log('UpdateMe Response status:', response.status);
 
       expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
       expect(response.body.data.name).toBe('Updated Test User');
       expect(response.body.data.email).toBe('updated@example.com');
       expect(response.body.data.phone).toBe('9876543210');
@@ -132,6 +133,7 @@ describe('API Endpoints', () => {
       console.log('UpdateMe Response status:', response.status);
 
       expect(response.status).toBe(400);
+      expect(response.body.status).toBe('Fail');
       expect(response.body.message).toBe(
         'This route is not for password updating, Please use /updateMyPassword'
       );
@@ -148,6 +150,7 @@ describe('API Endpoints', () => {
       console.log('GetAll Response status:', response.status);
 
       expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
       expect(response.body.data.data.length).toBeGreaterThan(0);
     });
 
@@ -160,6 +163,7 @@ describe('API Endpoints', () => {
       console.log('GetOne Response status:', response.status);
 
       expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
       expect(response.body.data.data._id).toBe(testPropertyId);
     });
 
@@ -172,6 +176,7 @@ describe('API Endpoints', () => {
       console.log('RelatedSuggestions Response status:', response.status);
 
       expect(response.status).toBe(200);
+      expect(response.body.status).toBe('success');
       expect(response.body.data.data.length).toBeGreaterThan(0);
     });
   });
@@ -186,6 +191,7 @@ describe('API Endpoints', () => {
     console.log('Query by Address Response status:', response.status);
 
     expect(response.status).toBe(200);
+    expect(response.body.status).toBe('success');
     expect(response.body.data.data.length).toBeGreaterThan(0);
     response.body.data.data.forEach((property) => {
       if (property.address) {
