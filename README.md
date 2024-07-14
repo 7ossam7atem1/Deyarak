@@ -4,8 +4,7 @@
 
 # Deyarak
 
-Deyarak is a Node.js webserver designed for the real estate industry, facilitating the renting of properties directly between owners and renters.
-
+Deyarak is an innovative platform designed to revolutionize the property rental process in the real estate industry. This Node.js webserver facilitates seamless direct communication between property owners and potential renters, eliminating the need for intermediaries and brokers. Deyarak is developed as my graduation project, showcasing the practical application of modern web technologies to solve real-world problems.
 
 ## Acknowledgements
 
