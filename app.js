@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const propertyRouter = require('./routes/propertyRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -19,8 +20,14 @@ const path = require('path');
 const app = express();
 
 app.use(express.json());
+app.use(
+  bodyParser.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 
-//implementing cors
 app.use(cors());
 app.options('*', cors());
 
@@ -47,6 +54,7 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(hpp());
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/v1/properties', propertyRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
@@ -54,6 +62,9 @@ app.use('/api/v1/rentings', paymentRouter);
 app.use('/api/v1/contacts', contactRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/.well-known', express.static(path.join(__dirname, '.well-known')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'success.html'));
+});
 
 app.all('*', (req, res, next) => {
   if (req.originalUrl === '/') {

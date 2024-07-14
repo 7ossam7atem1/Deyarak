@@ -1,6 +1,7 @@
 const express = require('express');
 const propertyController = require('../controllers/propertyController');
 const authController = require('../controllers/authController');
+const rentingController = require('../controllers/rentingController');
 
 const router = express.Router();
 
@@ -32,7 +33,10 @@ router
   );
 router
   .route('/')
-  .get(propertyController.getAllProperties)
+  .get(
+    rentingController.createRentingCheckout,
+    propertyController.getAllProperties
+  )
   .post(
     authController.protect,
     authController.restrictTo('user', 'admin'),

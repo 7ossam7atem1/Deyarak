@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 const propertySchema = new mongoose.Schema(
   {
     // images: [String],
@@ -99,17 +98,13 @@ const propertySchema = new mongoose.Schema(
   }
 );
 
-// propertySchema.index({ address: 'text' });
 propertySchema.index({ 'locations.address': 'text' });
-// propertySchema.index({ locations: '2dsphere' });
+
 propertySchema.index({ 'locations.coordinates': '2dsphere' });
+
 //virtual properties
 // propertySchema.virtual('pricePerSquareMeter').get(function () {
 //   return this.price / this.size;
-// });
-
-// propertySchema.virtual('isOwner').get(function() {
-//   return req.user && req.user.id === this.owner.toString();
 // });
 propertySchema.virtual('totalRooms').get(function () {
   return this.numberOfRooms + this.numberOfBathrooms;

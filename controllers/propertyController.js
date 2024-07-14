@@ -81,39 +81,6 @@ exports.resizePropertyImages = catchAsyncronization(async (req, res, next) => {
   next();
 });
 
-// exports.updateProperty = catchAsyncronization(async (req, res, next) => {
-//   const property = await Property.findById(req.params.id);
-
-//   if (!property) {
-//     return next(new AppError('Property with that id not found', 404));
-//   }
-
-//   const oldPublicIds = property.images.map((image) => image.public_id);
-
-//   const newPublicIds = req.body.images.map((image) => image.public_id);
-
-//   const publicIdsToDelete = oldPublicIds.filter(
-//     (oldPublicId) => !newPublicIds.includes(oldPublicId)
-//   );
-
-//   const deletePromises = publicIdsToDelete.map(async (public_id) => {
-//     await cloudinary.v2.uploader.destroy(public_id);
-//   });
-
-//   await Promise.all(deletePromises);
-
-//   property.images = req.body.images;
-
-//   await property.save();
-
-//   res.status(200).json({
-//     status: 'Success',
-//     message: 'Property updated successfully!',
-//     data: {
-//       data: property,
-//     },
-//   });
-// });
 exports.updateProperty = catchAsyncronization(async (req, res, next) => {
   const property = await Property.findById(req.params.id);
 
@@ -255,51 +222,10 @@ exports.calculateCriticalStats = catchAsyncronization(
 );
 
 exports.getAllProperties = factory.getAll(Property);
-// exports.getAllProperties = catchAsyncronization(async (req, res, next) => {
-//   console.log(req.query);
-//   //now we build the query
-//   //1) Filtering
-//   const features = new APIFeatures(Property.find(), req.query)
-//     .filtering()
-//     .sorting()
-//     .limitingFields()
-//     .pagination()
-//     .searching();
-//   const allProperties = await features.query;
-
-//   res.status(200).json({
-//     status: 'Success',
-//     results: allProperties.length,
-//     data: {
-//       data: allProperties,
-//     },
-//   });
-// });
 
 exports.getProperty = factory.getOne(Property);
-// exports.getProperty = catchAsyncronization(async (req, res, next) => {
-//   const propertyId = req.params.id;
-//   const property = await Property.findById(propertyId);
-//   if (!property) {
-//     return next(new AppError('Property with that id not found', 404));
-//   }
 
-//   res.status(200).json({
-//     status: 'Success',
-//     data: {
-//       data: property,
-//     },
-//   });
-// });
 exports.createProperty = factory.createOne(Property);
-// exports.createProperty = catchAsyncronization(async (req, res, next) => {
-//   req.body.owner = req.user.id;
-//   const newProperty = await Property.create(req.body);
-//   res.status(200).json({
-//     status: 'Success',
-//     message: 'Property Created successfully!',
-//   });
-// });
 exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
   const propertyId = req.params.id;
   const currentProperty = await Property.findById(propertyId);
@@ -356,7 +282,6 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
     )
     .limit(8);
 
-  // If no related properties found, relax the criteria
   if (relatedProperties.length === 0) {
     relatedProperties = await Property.find({
       _id: { $ne: propertyId },
@@ -366,9 +291,6 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
       )
       .limit(5);
   }
-  // if (!relatedProperties) {
-  //   return next(new AppError('No Related suggestions for this property', 404));
-  // }
 
   res.status(200).json({
     status: 'success',
@@ -378,111 +300,6 @@ exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
     },
   });
 });
-
-// exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
-//   const propertyId = req.params.id;
-//   const currentProperty = await Property.findById(propertyId);
-//   if (!currentProperty) {
-//     return next(new AppError('Property with that id not found', 404));
-//   }
-
-//   const locationCriteria = {
-//     'locations.coordinates': {
-//       $near: {
-//         $geometry: {
-//           type: 'Point',
-//           coordinates: currentProperty.locations.coordinates,
-//         },
-//         $maxDistance: 10000, // Maximum distance in meters (adjust as needed)
-//       },
-//     },
-//   };
-
-//   const sizeAndRoomCriteria = {
-//     $and: [
-//       {
-//         _id: { $ne: propertyId },
-//       },
-//       {
-//         $or: [
-//           {
-//             size: {
-//               $gte: currentProperty.size - 100,
-//               $lte: currentProperty.size + 100,
-//             },
-//           },
-//           {
-//             numberOfRooms: {
-//               $gte: currentProperty.numberOfRooms - 2,
-//               $lte: currentProperty.numberOfRooms + 2,
-//             },
-//           },
-//         ],
-//       },
-//     ],
-//   };
-
-//   const criteria = {
-//     $and: [locationCriteria, sizeAndRoomCriteria],
-//   };
-
-//   const relatedProperties = await Property.find(criteria)
-//     .select(
-//       'price size numberOfRooms locations images numberOfBathrooms address category'
-//     )
-//     .limit(8);
-//   res.status(200).json({
-//     status: 'success',
-//     results: relatedProperties.length,
-//     data: {
-//       data: relatedProperties,
-//     },
-//   });
-// });
-
-// exports.getRelatedSuggestions = catchAsyncronization(async (req, res, next) => {
-//   const propertyId = req.params.id;
-//   const currentProperty = await Property.findById(propertyId);
-//   if (!currentProperty) {
-//     return next(new AppError('Property with that id not found', 404));
-//   }
-//   const criteria = {
-//     $and: [
-//       {
-//         _id: { $ne: propertyId },
-//         // category: currentProperty.category,
-//       },
-//       {
-//         $or: [
-//           {
-//             size: {
-//               $gte: currentProperty.size - 100,
-//               $lte: currentProperty.size + 100,
-//             },
-//           },
-//           {
-//             numberOfRooms: {
-//               $gte: currentProperty.numberOfRooms - 2,
-//               $lte: currentProperty.numberOfRooms + 2,
-//             },
-//           },
-//         ],
-//       },
-//     ],
-//   };
-//   const relatedProperties = await Property.find(criteria)
-//     .select(
-//       'price size numberOfRooms location images numberOfBathrooms address category'
-//     )
-//     .limit(8);
-//   res.status(200).json({
-//     status: 'success',
-//     results: relatedProperties.length,
-//     data: {
-//       data: relatedProperties,
-//     },
-//   });
-// });
 
 exports.getPropertiesWithin = catchAsyncronization(async (req, res, next) => {
   const { distance, latlng, unit } = req.params;
@@ -554,44 +371,6 @@ exports.getDistances = catchAsyncronization(async (req, res, next) => {
   });
 });
 
-// exports.getPropertiesLocations = catchAsyncronization(
-//   async (req, res, next) => {
-//     const properties = await Property.find({
-//       locations: { $exists: true, $ne: [] },
-//     });
-
-//     const locations = properties.map((property) => property.locations);
-
-//     res.status(200).json({
-//       status: 'success',
-//       result: locations.length,
-//       data: {
-//         locations: locations,
-//       },
-//     });
-//   }
-// );
-
-// exports.getPropertiesLocations = catchAsyncronization(
-//   async (req, res, next) => {
-//     const properties = await Property.find({
-//       locations: { $exists: true, $ne: [] },
-//     });
-
-//     const locations = properties.map((property) => ({
-//       locations: property.locations,
-//       price: property.price,
-//     }));
-
-//     res.status(200).json({
-//       status: 'success',
-//       result: locations.length,
-//       data: {
-//         locations: locations,
-//       },
-//     });
-//   }
-// );
 exports.getPropertiesLocations = catchAsyncronization(
   async (req, res, next) => {
     const properties = await Property.find({

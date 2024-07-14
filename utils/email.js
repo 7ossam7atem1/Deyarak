@@ -50,7 +50,6 @@ module.exports = class Email {
       text: htmlToText.htmlToText(html),
     };
     //3) Create a transport and send email
-
     await this.newTransport().sendMail(mailOptions);
   }
   async sendWelcome() {

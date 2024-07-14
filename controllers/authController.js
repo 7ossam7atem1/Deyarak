@@ -5,7 +5,6 @@ const User = require('../models/userModel');
 const catchAsyncronization = require('../utils/catchAsyncronization');
 const AppError = require('../utils/appError');
 const Email = require('../utils/email');
-const cloudinary = require('cloudinary').v2;
 const signedToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -52,37 +51,6 @@ exports.signup = catchAsyncronization(async (req, res, next) => {
   await new Email(newUser, url).sendWelcome();
   createSendToken(newUser, 201, res);
 });
-// exports.signup = catchAsyncronization(async (req, res, next) => {
-//   let defaultImageUrl;
-
-//   // Upload default image to Cloudinary if it hasn't been uploaded already
-//   if (!cloudinary.image('default')) {
-//     const result = await cloudinary.uploader.upload('./public/img/users/default.jpg', {
-//       folder: 'defaultuserimage', // Folder in Cloudinary where the default image will be stored
-//       public_id: 'default', // Public ID of the default image
-//     });
-//     defaultImageUrl = result.secure_url;
-//   } else {
-//     defaultImageUrl = cloudinary.url('default');
-//   }
-
-//   const newUser = await User.create({
-//     name: req.body.name,
-//     email: req.body.email,
-//     phone: req.body.phone,
-//     password: req.body.password,
-//     passwordConfirm: req.body.passwordConfirm,
-//     passwordChangedAt: req.body.passwordChangedAt,
-//     role: req.body.role,
-//     active: req.body.active,
-//     photo: { url: defaultImageUrl }, // Set default image URL
-//   });
-
-//   const url = `${req.protocol}://${req.get('host')}/me`;
-//   console.log(url);
-//   // Assuming createSendToken is a function to create and send JWT token
-//   createSendToken(newUser, 201, res);
-// });
 
 exports.login = catchAsyncronization(async (req, res, next) => {
   const { email, password } = req.body;
@@ -152,36 +120,6 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-// exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
-//   const user = await User.findOne({ email: req.body.email });
-//   if (!user) {
-//     return next(new AppError('There is no user with that email address', 404));
-//   }
-
-//   const resetToken = user.createPasswordResetToken();
-//   await user.save({ validateBeforeSave: false });
-
-//   try {
-//     // const resetURL = `${req.protocol}://${req.get(
-//     //   'host'
-//     // )}/api/v1/users/resetPassword/${resetToken}`;
-//     const resetURL = `http://localhost:3000/resetPassword/${resetToken}`;
-
-//     await new Email(user, resetURL).sendPasswordReset();
-//     res.status(200).json({
-//       status: 'success',
-//       message: 'Token sent to email, check your inbox Please!',
-//     });
-//   } catch (err) {
-//     user.passwordResetToken = undefined;
-//     user.passwordResetExpires = undefined;
-//     await user.save({ validateBeforeSave: false });
-
-//     return next(
-//       new AppError('There was an error sending email, Try Again later!', 500)
-//     );
-//   }
-// });
 exports.forgotPassword = catchAsyncronization(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {

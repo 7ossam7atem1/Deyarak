@@ -63,7 +63,6 @@ reviewSchema.statics.calcAverageRatings = async function (reviewedUserId) {
   ]);
   console.log(stats);
 
-  //if you removed this if you will get an errror because array stats is empty
   if (stats.length > 0) {
     await User.findByIdAndUpdate(reviewedUserId, {
       ratingsQuantity: stats[0].nRating,

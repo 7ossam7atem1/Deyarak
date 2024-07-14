@@ -43,23 +43,6 @@ exports.createOne = (Model) =>
     });
   });
 
-// exports.getOne = (Model, populateOptions) =>
-//   catchAsyncronization(async (req, res, next) => {
-//     let query = Model.findById(req.params.id);
-//     if (populateOptions) query = query.populate(populateOptions);
-//     const document = await query;
-
-//     if (!document) {
-//       return next(new AppError('document with that id not found', 404));
-//     }
-//     document.isOwner =
-//       req.user && req.user.id === document.owner?._id.toString();
-//     console.log(req.user.id);
-//     res.status(200).json({
-//       status: 'success',
-//       data: { data: document },
-//     });
-//   });
 exports.getOne = (Model, populateOptions) =>
   catchAsyncronization(async (req, res, next) => {
     let query = Model.findById(req.params.id);
@@ -79,54 +62,6 @@ exports.getOne = (Model, populateOptions) =>
       data: { data: document },
     });
   });
-// exports.getAll = (Model) =>
-//   catchAsyncronization(async (req, res, next) => {
-//     let filter = {};
-//     if (req.params.reviewedUserId)
-//       filter = { reviewedUser: req.params.reviewedUserId };
-//     console.log(req.query);
-
-//     const features = new APIFeatures(Model.find(filter), req.query)
-//       .filtering()
-//       .sorting()
-//       .limitingFields()
-//       .pagination()
-//       .searching();
-//     // const allDocuments = await features.query.explain();
-//     const allDocuments = await features.query;
-//     const ratingsStats = await Model.aggregate([
-//       { $match: filter },
-//       {
-//         $group: {
-//           _id: '$reviewedUser',
-//           avgRating: { $avg: '$rating' },
-//         },
-//       },
-//     ]);
-
-//     const ratingMap = {};
-//     ratingsStats.forEach((stat) => {
-//       ratingMap[stat._id.toString()] = stat.avgRating;
-//     });
-
-//     allDocuments.forEach((document) => {
-//       if (document.reviewer) {
-//         document.isReviewer =
-//           req.user && req.user.id === document.reviewer._id.toString();
-//       } else {
-//         document.isReviewer = false;
-//       }
-//       document.avgRating = ratingMap[document.reviewedUser._id.toString()] || 0;
-//     });
-
-//     res.status(200).json({
-//       status: 'success',
-//       result: allDocuments.length,
-//       data: {
-//         data: allDocuments,
-//       },
-//     });
-//   });
 
 exports.getAll = (Model) =>
   catchAsyncronization(async (req, res, next) => {
