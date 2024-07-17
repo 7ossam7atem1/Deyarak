@@ -4,17 +4,7 @@
 
 # Deyarak
 
-Deyarak is an innovative platform designed to revolutionize the property rental process in the real estate industry. This Node.js webserver facilitates seamless direct communication between property owners and potential renters, eliminating the need for intermediaries and brokers. Deyarak is developed as my graduation project, showcasing the practical application of modern web technologies to solve real-world problems.
-
-## Acknowledgements
-
- - Subervised by: Dr.Mahmoud Hussien
-
-
-
-## API Reference
-
-https://deyarak-app.onrender.com/api-docs/
+Deyarak is a Node.js webserver designed for the real estate industry, facilitating the renting of properties directly between owners and renters.
 
 
 ## Authors
@@ -25,17 +15,7 @@ https://deyarak-app.onrender.com/api-docs/
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
-
-
-## Badges
-
-
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-
-[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
-
 
 ## Tech Stack
 
@@ -133,3 +113,14 @@ To run this project in production env run
 
 
 ![App Screenshot](https://res.cloudinary.com/dptpklbgm/image/upload/v1720923848/logos/a3nsvefdhej2deyx5dsh.jpg)
+
+## Acknowledgements
+
+ - Subervised by: Dr.Mahmoud Hussien
+
+
+
+## API Reference
+
+https://deyarak-app.onrender.com/api-docs/
+
