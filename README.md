@@ -77,18 +77,22 @@ To run this project, you will need to add the following environment variables to
 `CLOUD_API_KEY`
 
 `CLOUD_API_SECRET`
-## Installation
+## setup & installation
 
-- Install Deyarak with npm
+- Clone the Repository:
 
 ```bash
-clone repo: https://github.com/7ossam7atem1/Deyarak.git
+git clone https://github.com/7ossam7atem1/Deyarak.git
 cd Deyarak
 ```
 
+  - Install Dependencies
+```bash
+  npm install
+```
   - run server  
 ```bash
-  npm run start
+  npm start
 ```
 ## Running Tests
 
