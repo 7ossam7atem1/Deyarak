@@ -1,10 +1,9 @@
-
 ![Logo](https://res.cloudinary.com/dptpklbgm/image/upload/v1720920441/logos/lcqyngrh4rtnamfofenb.png)
 
 
 # Deyarak
 
-Deyarak is a Node.js webserver designed for the real estate industry, facilitating the renting of properties directly between owners and renters.
+Deyarak (My graduation Project) is a Node.js webserver designed for the real estate industry, facilitating the renting of properties directly between owners and renters.
 
 
 ## Authors
@@ -83,8 +82,8 @@ To run this project, you will need to add the following environment variables to
 - Install Deyarak with npm
 
 ```bash
-  npm install Deyarak
-  cd Deyarak
+clone repo: https://github.com/7ossam7atem1/Deyarak.git
+cd Deyarak
 ```
 
   - run server  
@@ -123,4 +122,3 @@ To run this project in production env run
 ## API Reference
 
 https://deyarak-app.onrender.com/api-docs/
-
