@@ -3,7 +3,7 @@
 Deyarak (My graduation Project) is a Node.js webserver designed for the real estate industry, facilitating the renting of properties directly between owners and renters.
 
 <div style="text-align: center;">
-    <img src="https://res.cloudinary.com/dptpklbgm/image/upload/v1720920441/logos/lcqyngrh4rtnamfofenb.png" width="700"/>
+    <img src="https://res.cloudinary.com/dptpklbgm/image/upload/v1720920441/logos/lcqyngrh4rtnamfofenb.png" width="500"/>
 </div>
 
 
