@@ -121,7 +121,7 @@ To run this project in production env run
 
 ## Acknowledgements
 
- - Subervised by: Dr.Mahmoud Hussien
+ - Supervised by: Prof/Dr.Mahmoud Hussien
 
 
 
